@@ -1,0 +1,19 @@
+{
+  "name": "tube-ai-analyzer",
+  "description": "analyze and summerize youtube videos on the youtube page",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "permissions": ["activeTab", "tabs", "scripting", "cookies", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {},
+  "host_permissions": ["http://localhost:3000/*", "https://*/*"]
+}
