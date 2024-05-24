@@ -17,6 +17,26 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, (res) => {
     console.log("this is not a youtube page");
   }
 
-  // else proceed
-  console.log("This is a YouTube Page!!!");
+  /**  wait for youtube page to load complete to have access
+   * to get the button that triggers the transcript if transcript is availabel*/
+  setTimeout(() => {
+    // transcript button
+    const transcript_btn = <HTMLButtonElement>(
+      document.querySelector('button[aria-label="Show transcript"]')
+    );
+
+    transcript_btn?.click();
+    const content_wrapper = <HTMLElement>(
+      document.querySelector(
+        '<ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]'
+      )
+    );
+
+    if (content_wrapper) {
+      let transcript = [];
+      content_wrapper.style.opacity = "0";
+
+      // collect each transcript with an id called "content"
+    }
+  }, 3000);
 });
