@@ -11,9 +11,11 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
+      "css": ["content.css"],
       "run_at": "document_end"
     }
   ],
+  "web_accessible_resources": ["content.html"],
   "action": {},
   "host_permissions": ["http://localhost:3000/*", "https://*/*"]
 }

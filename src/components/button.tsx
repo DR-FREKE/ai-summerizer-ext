@@ -25,7 +25,7 @@ export const AppButton = ({
       onClick={onPress}
     >
       {icon}
-      {pending ? "creating account..." : name}
+      {name}
     </button>
   );
 };

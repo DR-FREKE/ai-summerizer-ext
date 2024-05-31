@@ -5,9 +5,11 @@ import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { Google } from "iconsax-react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export const Header = () => {
   const { data: session } = useSession();
+  const pathname = usePathname(); // get the pathname
 
   /** method to handle google sign in request */
   const handleGoogleSingIn = () => {
@@ -15,7 +17,11 @@ export const Header = () => {
   };
 
   return (
-    <header className="border-b py-3 px-10 flex items-center justify-between gap-5">
+    <header
+      className={`border-b py-3 px-10 ${
+        pathname.includes("share") ? "hidden" : "flex"
+      } items-center justify-between gap-5`}
+    >
       <h3>Logo</h3>
       {/** coming back to this */}
       {session ? (
