@@ -19,3 +19,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     });
     return true;
 });
+/** listen for event coming from the iframe when the iframe successfully loads both on
+ * the youtube page and other pages that an iframe will be used
+ */
+chrome.runtime.onMessage.addListener(function (message, sender, response) {
+    var type_arr = ["insight", "timestamp_summary", "comments", "cc"];
+    if (type_arr.includes(message.type)) {
+        response({ success: true, data: "plenty data from api" });
+    }
+});

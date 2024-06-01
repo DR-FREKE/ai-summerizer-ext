@@ -14,7 +14,7 @@
  */
 
 // send message to background.ts
-chrome.runtime.sendMessage({ type: "youtubeOrNot" }, (res) => {
+chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   if (!res) {
     console.log("this is not a youtube page");
   }
@@ -22,46 +22,36 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, (res) => {
   /**  wait for youtube page to load complete to have access
    * to get the button that triggers the transcript if transcript is availabel*/
   setTimeout(() => {
+    //use iframe to load ui
     const iframe = document.createElement("iframe");
-    iframe.src = "";
-    // transcript button
-    // const transcript_btn = <HTMLButtonElement>(
-    //   document.querySelector('button[aria-label="Show transcript"]')
-    // );
+    iframe.src = "https://app-frontend-iframe-pj8b.vercel.app"; // url where the view should load from
+    iframe.style.width = "100%";
+    iframe.style.height = "125px";
 
-    // transcript_btn?.click(); // if button is present and it's clicked, get section where transcript is
-    // const content_wrapper = <HTMLElement>(
-    //   document.querySelector(
-    //     '<ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]'
-    //   )
-    // );
+    // create a div to hold the iframe and add some styling
+    const summerizer_div = document.createElement("div");
+    summerizer_div.style.border = "1px solid gray";
+    summerizer_div.style.borderRadius = "12px";
+    summerizer_div.appendChild(iframe);
 
-    // if (content_wrapper) {
-    //   let transcript = [];
-    //   content_wrapper.style.opacity = "0";
+    // get youtube sideview
+    const yt_sidebar = <HTMLElement>document.querySelector(`div[id="secondary"]`);
 
-    //   // collect each transcript with an id called "content"
-    //   const content_wrap = content_wrapper.querySelector("#content");
+    if (yt_sidebar) {
+      /** get the div where other vidoes shows up and put the extension view before it */
+      const secondary_inner = <HTMLElement>document.querySelector("#secondary-inner");
+      yt_sidebar.insertBefore(summerizer_div, secondary_inner);
+    }
 
-    //   //create a wrapper to hold the extension like a widget on youtube pages
-    //   const ext_div = document.createElement("div");
-    //   getHTMLContent("test.html", ext_div);
+    window.addEventListener("message", event => {
+      const { type, payload } = event.data;
 
-    //   content_wrapper.insertBefore(ext_div, content_wrap);
-    //   ext_div.style.cssText = ``
-
-    // //   ReactDOM.createRoot(ext_div).render(<MyComponent />
-    // //   );
-    // }
+      if (type == "timestamp_summary") {
+        chrome.runtime.sendMessage({ type, payload }, res => {
+          //send response back to nextjs
+          iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: res }, "*");
+        });
+      }
+    });
   }, 3000);
 });
-
-const getHTMLContent = async (path: string, ext_div: HTMLElement) => {
-  const response = await fetch(path);
-  if (response.ok) {
-    const html_content = await response.text();
-    ext_div.innerHTML = html_content;
-  } else {
-    throw new Error("error occured");
-  }
-};

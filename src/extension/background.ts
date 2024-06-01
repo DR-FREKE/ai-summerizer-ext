@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
   }
 
   // continue
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     const current_tab = tabs[0];
 
     const is_youtube_type = (url: string) => {
@@ -24,4 +24,14 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
   });
 
   return true;
+});
+
+/** listen for event coming from the iframe when the iframe successfully loads both on
+ * the youtube page and other pages that an iframe will be used
+ */
+chrome.runtime.onMessage.addListener((message, sender, response) => {
+  const type_arr = ["insight", "timestamp_summary", "comments", "cc"];
+  if (type_arr.includes(message.type)) {
+    response({ success: true, data: "plenty data from api" });
+  }
 });
