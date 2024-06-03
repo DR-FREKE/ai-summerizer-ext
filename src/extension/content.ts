@@ -26,7 +26,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
     const iframe = document.createElement("iframe");
     iframe.src = "https://app-frontend-iframe-pj8b.vercel.app"; // url where the view should load from
     iframe.style.width = "100%";
-    iframe.style.height = "125px";
+    // iframe.style.height = "125px";
 
     // create a div to hold the iframe and add some styling
     const summerizer_div = document.createElement("div");
@@ -43,6 +43,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
       yt_sidebar.insertBefore(summerizer_div, secondary_inner);
     }
 
+    /** listen to event from the iframe and send message back to the iframe */
     window.addEventListener("message", event => {
       const { type, payload } = event.data;
 

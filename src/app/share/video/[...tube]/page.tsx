@@ -9,7 +9,7 @@ type ParamsType = {
 
 const SharePage = ({ params }: ParamsType) => {
   if (params.tube.length !== 2) {
-    throw new Error("error occured");
+    return <div>Not Found Route...</div>;
   }
   return (
     <div className="m-[0_auto] md:max-w-[1232px] max-w-full p-[0_16px_32px] text-left box-border">

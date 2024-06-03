@@ -2,8 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 import { FlatList, DataProps } from "../list";
-import { share_data } from "../../../lib/data";
+import { QandA_data, share_data } from "../../../lib/data";
 import { InsightComp } from "../insight";
+import { QandAComp } from "../questionandanswer";
+
+const processTimestamp = (data: { icon: string; title: string }) => ({
+  icon: data.icon,
+  time: data.title.match(/\d{2}:\d{2}/)![0],
+  title: data.title,
+});
 
 const DownloadBtn = () => (
   <Link
@@ -11,12 +18,7 @@ const DownloadBtn = () => (
     target="_blank"
     className="sm:rounded-xl rounded-lg sm:p-[10px_20px] p-[6px_12px_6px_10px] flex sm:gap-[10px] gap-2 justify-center items-center bg-white sm:max-w-none max-w-[140px] shadow-md border-[0.5px] border-black/15"
   >
-    <Image
-      src={"https://eightify.app/seo-static/Chrome_icon.svg"}
-      alt=""
-      width={"28"}
-      height={"28"}
-    />
+    <Image src={"https://eightify.app/seo-static/Chrome_icon.svg"} alt="" width={"28"} height={"28"} />
     <p className="text-[#000] sm:text-[18px] text-[10px] sm:font-semibold sm:leading-[22px] leading-3 sm:tracking-[-0.18px] tracking-[0.1px]">
       <span>Install&nbsp;on </span>
       <span className="lbs-button__browser-name">Chrome</span>
@@ -30,10 +32,23 @@ const SummaryText = ({ text }: { text?: string | ReactNode }) => (
   </p>
 );
 
+interface RenderProps {
+  item: any;
+  index: number;
+}
+
 export const ShareSummary = () => {
-  const renderItem = ({ item, index }: { item: any; index: number }) => (
-    <InsightComp {...item} />
-  );
+  // render Insight items
+  const renderItem = ({ item, index }: RenderProps) => <InsightComp {...item} />;
+
+  // render questions and answers
+  const renderQandA = ({ item, index }: RenderProps) => <QandAComp {...item} />;
+
+  // render timestamp summary
+  const renderTimestampSum = ({ item, index }: { item: any; index: number }) => <div>{item.time}</div>;
+
+  const timestamp_summary = share_data.timestamp_summary.map(processTimestamp);
+
   return (
     <div className="sm:w-[57.5%] flex flex-col">
       <div>
@@ -43,16 +58,12 @@ export const ShareSummary = () => {
         <div className="sm:hidden flex">Video Component for mobile view</div>
       </div>
       <div className="text-2xl font-semibold leading-[1.4]">
-        <span className="font-extrabold tracking-[0.96px] text-black/15">
-          TLDR
-        </span>{" "}
+        <span className="font-extrabold tracking-[0.96px] text-black/15">TLDR</span>{" "}
         <span className="font-lora-font">
-          The coronavirus pandemic has highlighted the need to appreciate our
-          flaws, form a symbiotic relationship with AI, and take proper hygiene
-          precautions to protect ourselves and those at risk.
+          The coronavirus pandemic has highlighted the need to appreciate our flaws, form a symbiotic relationship with AI, and take proper hygiene precautions to protect ourselves and those at risk.
         </span>
       </div>
-      <div className="my-[24px]">
+      <section className="my-[24px]">
         <div className="cursor-pointer relative bg-[#141414] overflow-hidden p-[8px_8px_8px_16px] sm:p-[18px_24px] rounded-lg sm:rounded-xl">
           <div className="">
             <Image
@@ -80,28 +91,28 @@ export const ShareSummary = () => {
           <div className="relative flex items-center justify-between">
             <div className="flex gap-3 sm:gap-4 items-center">
               <picture>
-                <Image
-                  src={"https://eightify.app/seo-static/sparkles-mono.svg"}
-                  alt=""
-                  width="80"
-                  height="80"
-                  quality={"95"}
-                  priority={true}
-                  className="sm:w-[56px] sm:h-[56px] w-[32px] h-[32px]"
-                />
+                <Image src={"https://eightify.app/seo-static/sparkles-mono.svg"} alt="" width="80" height="80" quality={"95"} priority={true} className="sm:w-[56px] sm:h-[56px] w-[32px] h-[32px]" />
               </picture>
               <SummaryText />
             </div>
             <DownloadBtn />
           </div>
         </div>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-[26px] mb-5">
-          Future of Technology and Human Interface
-        </h3>
+      </section>
+      <section className="mt-4">
+        <h3 className="text-[26px] mb-5">Future of Technology and Human Interface</h3>
         <FlatList data={share_data.insights.points} renderItem={renderItem} />
-      </div>
+        <h3 className="text-[26px] mb-5 mt-8">Potential of Neuralink Technology</h3>
+        {/* <FlatList /> */}
+      </section>
+      <section className="mb-12">
+        <h2 className="text-[32px] font-extrabold leading-5 mb-6">Q&A</h2>
+        <FlatList data={QandA_data} renderItem={renderQandA} className="gap-[24px]" />
+      </section>
+      <section className="mb-12">
+        <h2 className="text-[32px] font-extrabold leading-5 mb-6">Timestamped Summary</h2>
+        <FlatList data={timestamp_summary} renderItem={renderTimestampSum} />
+      </section>
     </div>
   );
 };

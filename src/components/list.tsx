@@ -18,9 +18,7 @@ export const FlatList = ({ data, renderItem, className }: FlatListProps) => {
   return (
     <ul className={`flex flex-col items-start self-stretch ${className}`}>
       {data?.map((item, index) => (
-        <React.Fragment key={index}>
-          {renderItem({ item, index })}
-        </React.Fragment>
+        <React.Fragment key={index}>{renderItem({ item, index })}</React.Fragment>
       ))}
     </ul>
   );
