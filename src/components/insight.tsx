@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { share_data } from "../../lib/data";
+import { share_data } from "../lib/data";
 
 export type InsightProps = (typeof share_data.insights.points)[number];
 

@@ -1,5 +1,6 @@
 import { ShareHeader } from "@/components/share/header";
 import { ShareSummary } from "@/components/share/share.summary";
+import prisma from "@/lib/db";
 
 type ParamsType = {
   params: {
@@ -7,7 +8,25 @@ type ParamsType = {
   };
 };
 
-const SharePage = ({ params }: ParamsType) => {
+const SharePage = async ({ params }: ParamsType) => {
+  const video_data = await prisma.video.findMany({
+    where: {
+      video_id: {
+        contains: "vid",
+      },
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    select: {
+      // this is similar to something mongoose has where you can select the data you want to return
+      video_name: true,
+    },
+    skip: 10,
+    take: 10,
+  });
+  const video_count = await prisma.video.count();
+
   if (params.tube.length !== 2) {
     return <div>Not Found Route...</div>;
   }
@@ -16,7 +35,7 @@ const SharePage = ({ params }: ParamsType) => {
       <ShareHeader />
       <div className="flex flex-wrap sm:flex-row flex-col justify-between mb-[85px]">
         <ShareSummary />
-        <div className="">video</div>
+        <div className="">video {video_count}</div>
       </div>
     </div>
   );

@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // for prod, this will be postgres
+  url      = env("DATABASE_URL")
+}
+
+model Video {
+  video_id          String             @id @unique
+  video_name        String
+  general_topic     String
+  summary           String
+  transcript        String
+  video_thumbnail   String
+  video_url         String?
+  timestamp_summary TimestampSummary[]
+  insights          Insight[]
+  updated_at        DateTime           @updatedAt
+  created_at        DateTime           @default(now())
+
+  @@unique([video_name])
+  @@index([video_id, video_name])
+}
+
+model TimestampSummary {
+  id         String     @id @default(cuid())
+  icon       String
+  key_ideas  KeyIdeas[]
+  start_time Int
+  tldr       String
+  video_id   String
+  video      Video      @relation(fields: [video_id], references: [video_id])
+}
+
+model KeyIdeas {
+  id           Int              @id @default(autoincrement())
+  ideas        String?
+  timestamp_id String
+  timestamp    TimestampSummary @relation(fields: [timestamp_id], references: [id])
+}
+
+model Insight {
+  id       String         @id @default(cuid())
+  name     String
+  points   InsightPoint[]
+  video_id String
+  video    Video          @relation(fields: [video_id], references: [video_id])
+}
+
+model InsightPoint {
+  id         String  @id @default(cuid())
+  icon       String
+  title      String
+  insight_id String
+  insight    Insight @relation(fields: [insight_id], references: [id])
+}
+
+// create model for rating
+
+// create model for subscription and plan

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 import { FlatList, DataProps } from "../list";
-import { QandA_data, share_data } from "../../../lib/data";
+import { QandA_data, share_data } from "../../lib/data";
 import { InsightComp } from "../insight";
 import { QandAComp } from "../questionandanswer";
 

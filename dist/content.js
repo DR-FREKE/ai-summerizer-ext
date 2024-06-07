@@ -14,29 +14,52 @@
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
     if (!res) {
-        console.log("this is not a youtube page");
+        return;
     }
+    var iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
     /**  wait for youtube page to load complete to have access
-     * to get the button that triggers the transcript if transcript is availabel*/
+     * to get the sideview*/
     setTimeout(function () {
         //use iframe to load ui
         var iframe = document.createElement("iframe");
-        iframe.src = "https://app-frontend-iframe-pj8b.vercel.app"; // url where the view should load from
+        iframe.src = iframe_url; // url where the view should load from
         iframe.style.width = "100%";
-        // iframe.style.height = "125px";
+        iframe.style.height = "100%";
+        iframe.style.border = "1px solid rgba(0, 0, 0, 0.08)";
+        iframe.style.borderRadius = "12px";
+        iframe.style.overflow = "hidden";
+        iframe.style.display = "block";
         // create a div to hold the iframe and add some styling
         var summerizer_div = document.createElement("div");
-        summerizer_div.style.border = "1px solid gray";
-        summerizer_div.style.borderRadius = "12px";
+        summerizer_div.style.transition = "transform 0.3s ease 0s, opacity 0.3s ease 0s, height 0.5s ease 0s";
+        summerizer_div.style.height = "auto";
+        summerizer_div.style.marginBottom = "8px";
+        summerizer_div.style.order = "-1";
         summerizer_div.appendChild(iframe);
         // get youtube sideview
         var yt_sidebar = document.querySelector("div[id=\"secondary\"]");
         if (yt_sidebar) {
-            /** get the div where other vidoes shows up and put the extension view before it */
-            var secondary_inner = document.querySelector("#secondary-inner");
-            yt_sidebar.insertBefore(summerizer_div, secondary_inner);
+            yt_sidebar.insertBefore(summerizer_div, yt_sidebar.firstChild);
         }
-        /** listen to event from the iframe and send message back to the iframe */
+        /** get the user session...users most authenticate with google login before they can use the extension
+         *
+         *
+         * NOTE: if they sign in and use the extension, the content should be store in a state management library
+         * like redux on the component the iframe loads...only show few items from the store if there's no more session
+         * but there's content in the store else show a different ui.
+         *
+         *
+         */
+        chrome.runtime.sendMessage({ type: "get_session" }, function (session) {
+            if (!session || session == undefined || session.accessToken == undefined) {
+                // set iframe url to include unauthorized
+                iframe.src = iframe_url + "/unauthorized";
+                // might send an event as well
+            }
+            // if there's session, set token as a query string in the iframe src
+            iframe.src = "".concat(iframe_url, "/?token=").concat(session.accessToken);
+        });
+        /** listen to event from the tabs from the iframe and send message back to the iframe */
         window.addEventListener("message", function (event) {
             var _a = event.data, type = _a.type, payload = _a.payload;
             if (type == "timestamp_summary") {

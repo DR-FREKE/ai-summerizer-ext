@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { QandA_data } from "../../lib/data";
+import { QandA_data } from "../lib/data";
 
 export type QandAProps = (typeof QandA_data)[number];
 

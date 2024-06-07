@@ -35,3 +35,29 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
     response({ success: true, data: "plenty data from api" });
   }
 });
+
+/** add listener to listen for if the user is signed in */
+chrome.runtime.onMessage.addListener((message, sender, response) => {
+  if (message.type == "get_session") {
+    fetch("http://localhost:3000/api/auth/session", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Failed to retreive session data");
+        }
+      })
+      .then(session => {
+        response(session);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    return true;
+  }
+});
