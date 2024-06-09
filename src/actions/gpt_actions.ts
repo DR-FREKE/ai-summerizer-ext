@@ -1,49 +1,54 @@
+"use server";
+
+import { ItemsType, CommentSortType, CommentType, VideoDataType } from "@/lib/types";
 import { YoutubeTranscript, type TranscriptResponse } from "youtube-transcript";
-
-interface CategorySnippet {
-  title: string;
-}
-
-interface Category {
-  id: string;
-  snippet: CategorySnippet;
-}
-interface CategoryResponse {
-  kind: string;
-  etag: string;
-  items: Category[];
-}
+import { makeRequest } from "@/lib/utils";
 
 const API_KEY = process.env.API_KEY; // api key for youtube data api
 
-/** utility function to make request */
-const makeRequest = async (url: string, method?: string, body?: any) => {
-  const res = await fetch(url);
-  if (res.ok) {
-    // return the data
-    return await res.json();
-  } else {
-    const error_details = await res.text();
-    throw new Error(`Request failed with status ${res.status}`);
-  }
-};
-
 /** function to get video category */
-export const getVideoCategory = async (category_id: string): Promise<CategoryResponse> => {
+export const getVideoCategory = async (category_id: string) => {
   const data = await makeRequest(`https://www.googleapis.com/youtube/v3/videoCategories?id=${category_id}&key=${API_KEY}&part=snippet`);
   return data;
+};
+
+/** function to get top comments for a particular video */
+export const getVideoTopComments = async (video_id: string) => {
+  const data = await makeRequest(`https://www.googleapis.com/youtube/v3/commentThreads?videoId=${video_id}&key=${API_KEY}&part=snippet&order=relevance`);
+  return data.items
+    .map((item: ItemsType<CommentType>) => {
+      const comment_item = item.snippet.topLevelComment.snippet;
+      return {
+        author_channel_url: comment_item.authorChannelUrl,
+        author_display_name: comment_item.authorDisplayName,
+        author_profile_image_url: comment_item.authorProfileImageUrl,
+        id: item.snippet.topLevelComment.id,
+        like_count: comment_item.likeCount,
+        published_at: comment_item.publishedAt,
+        text_display: comment_item.textDisplay,
+        total_reply_count: item.snippet.totalReplyCount,
+        updated_at: comment_item.updatedAt,
+      };
+    })
+    .sort((a: CommentSortType, b: CommentSortType) => b.like_count - a.like_count);
 };
 
 /** function to call youtube API */
 export const getYouTubeData = async (video_id: string) => {
   // call api here
   const data = await makeRequest(`https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,contentDetails,statistics`);
-  if (data.items.length > 0) {
-    const category_id = data.items[0].snippet.categoryId;
-    const category_data = await getVideoCategory(category_id);
-    data.items[0].snippet.category_name = category_data.items.find(item => item.id == category_id)?.snippet.title; // get the title and add it as the category name
-    return data; // TODO: transform data
-  }
+  //   if (data.items.length > 0) {
+  //     const category_id = data.items[0].snippet.categoryId;
+  //     const category_data = await getVideoCategory(category_id);
+  //     data.items[0].snippet.category_name = category_data.items.find(item => item.id == category_id)?.snippet.title; // get the title and add it as the category name
+  //     return data; // TODO: transform data
+  //   }
+  return data.items.map((item: ItemsType<VideoDataType>) => ({
+    video_id: item.id,
+    video_name: item.snippet.title,
+    video_thumbnail: item.snippet.thumbnails.default.url,
+    video_url: "some video url",
+  }));
 };
 
 export const getTranscript = async (video_id: string) => {

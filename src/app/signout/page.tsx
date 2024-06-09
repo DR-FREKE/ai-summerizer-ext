@@ -6,7 +6,7 @@ function SignOutPage() {
   return (
     <div
       className="cursor-pointer min-h-screen items-center justify-center 
-    flex w-full bg-black text-white"
+    flex w-full"
     >
       <button onClick={() => signOut()} className="hover:opacity-90 smooth curspor-pointer">
         signOut

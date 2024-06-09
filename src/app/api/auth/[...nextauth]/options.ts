@@ -1,5 +1,4 @@
 import GoogleProvider from "next-auth/providers/google";
-import jwt from "jsonwebtoken";
 import type { NextAuthOptions, Session } from "next-auth";
 import { signJWT } from "@/lib/auth";
 
@@ -22,7 +21,7 @@ export const options: NextAuthOptions = {
     async jwt({ token, user, account, profile, isNewUser }) {
       //persist token right after signin
       if (account) {
-        token.accessToken = await signJWT({ id: user?.id, name: user?.name, email: user?.email }, process.env.JWT_KEY!);
+        token.accessToken = await signJWT({ id: user?.id, name: user?.name, email: user?.email }, process.env.JWT_KEY!, { expiresIn: "1d" });
       }
       return token;
     },

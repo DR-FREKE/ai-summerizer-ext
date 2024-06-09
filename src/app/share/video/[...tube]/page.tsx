@@ -2,14 +2,7 @@ import { ShareHeader } from "@/components/share/header";
 import { ShareSummary } from "@/components/share/share.summary";
 import prisma from "@/lib/db";
 
-type ParamsType = {
-  params: {
-    tube: string[];
-  };
-};
-
-const SharePage = async ({ params }: ParamsType) => {
-  const video_data = await prisma.video.findMany({
+/**const video_data = await prisma.video.findMany({
     where: {
       video_id: {
         contains: "vid",
@@ -24,6 +17,25 @@ const SharePage = async ({ params }: ParamsType) => {
     },
     skip: 10,
     take: 10,
+  }); */
+
+type ParamsType = {
+  params: {
+    tube: string[];
+  };
+};
+
+const SharePage = async ({ params }: ParamsType) => {
+  const video_data = await prisma.video.findUnique({
+    where: {
+      video_name: "",
+      // add video category as well
+    },
+
+    select: {
+      // this is similar to something mongoose has where you can select the data you want to return
+      video_name: true,
+    },
   });
   const video_count = await prisma.video.count();
 

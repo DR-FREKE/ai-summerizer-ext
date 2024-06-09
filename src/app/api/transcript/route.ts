@@ -15,10 +15,10 @@ export const GET = async (req: NextRequest) => {
 
   try {
     // check if video_id exist in the database by calling the getVideoById function
-    const video_exist = await getVideoById(video_id, type);
-    if (video_exist) {
+    const video = await getVideoById(video_id, type);
+    if (video) {
       // if video exist, return the video but use the type passed from query query the object i.e if it insights or timestamp summary
-      return NextResponse.json({ data: video_exist });
+      return NextResponse.json({ data: video });
     }
 
     // if video does not exist, query chatgpt by calling gpt action and passing the transcript...when the result returns, add the result to the db and cache
@@ -34,5 +34,6 @@ export const GET = async (req: NextRequest) => {
     }
   } catch (error) {
     console.error("error occured", error);
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 };

@@ -3,6 +3,15 @@
 import { share_data } from "@/lib/data";
 import prisma from "@/lib/db";
 
+const default_data_structure = {
+  comments: null,
+  insights: null,
+  isPartial: false,
+  timestamp_summary: null,
+  transcript: null,
+  title: null,
+};
+
 /** function to get a particular video using the ID */
 export const getVideoById = async (video_id: string, type: string) => {
   let result;
@@ -29,9 +38,9 @@ export const getVideoById = async (video_id: string, type: string) => {
 
     // else transform data using the type passed
     result = {
-      ...video,
-      insights: type.match("insight") ? video?.insights : null,
-      timestamp_summary: type.match("summary") ? video?.timestamp_summary : null,
+      ...default_data_structure,
+      title: video.video_name,
+      [type]: video[type as keyof typeof video],
     };
 
     /** store result in cache */
