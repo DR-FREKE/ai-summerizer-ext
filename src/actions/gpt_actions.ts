@@ -14,10 +14,17 @@ export const getVideoCategory = async (category_id: string) => {
 
 /** function to get top comments for a particular video */
 export const getVideoTopComments = async (video_id: string) => {
-  const data = await makeRequest(`https://www.googleapis.com/youtube/v3/commentThreads?videoId=${video_id}&key=${API_KEY}&part=snippet&order=relevance`);
+  const url = `https://www.googleapis.com/youtube/v3/commentThreads?videoId=${video_id}&key=${API_KEY}&part=snippet&order=relevance`;
+  const data = await makeRequest(url);
+
   return data.items
     .map((item: ItemsType<CommentType>) => {
-      const comment_item = item.snippet.topLevelComment.snippet;
+      const {
+        snippet: {
+          topLevelComment: { snippet: comment_item },
+        },
+      } = item;
+
       return {
         author_channel_url: comment_item.authorChannelUrl,
         author_display_name: comment_item.authorDisplayName,
@@ -36,7 +43,8 @@ export const getVideoTopComments = async (video_id: string) => {
 /** function to call youtube API */
 export const getYouTubeData = async (video_id: string) => {
   // call api here
-  const data = await makeRequest(`https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,contentDetails,statistics`);
+  const url = `https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,contentDetails,statistics`;
+  const data = await makeRequest(url);
   //   if (data.items.length > 0) {
   //     const category_id = data.items[0].snippet.categoryId;
   //     const category_data = await getVideoCategory(category_id);
