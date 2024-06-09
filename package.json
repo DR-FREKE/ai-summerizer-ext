@@ -16,13 +16,17 @@
   "dependencies": {
     "@prisma/client": "^5.12.1",
     "@types/jsonwebtoken": "^9.0.6",
+    "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "iconsax-react": "^0.0.8",
+    "jose": "^4.15.5",
     "jsonwebtoken": "^9.0.2",
+    "nanoid": "^3.3.7",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "youtube-transcript": "^1.2.1"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.268",

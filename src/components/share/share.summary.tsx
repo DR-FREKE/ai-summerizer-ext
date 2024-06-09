@@ -6,10 +6,10 @@ import { QandA_data, share_data } from "../../lib/data";
 import { InsightComp } from "../insight";
 import { QandAComp } from "../questionandanswer";
 
-const processTimestamp = (data: { icon: string; title: string }) => ({
+const processTimestamp = (data: { icon: string; tldr: string }) => ({
   icon: data.icon,
-  time: data.title.match(/\d{2}:\d{2}/)![0],
-  title: data.title,
+  time: data.tldr.match(/\d{2}:\d{2}/)![0],
+  title: data.tldr,
 });
 
 const DownloadBtn = () => (

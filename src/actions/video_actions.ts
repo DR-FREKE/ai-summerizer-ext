@@ -5,6 +5,7 @@ import prisma from "@/lib/db";
 
 /** function to get a particular video using the ID */
 export const getVideoById = async (video_id: string, type: string) => {
+  let result;
   try {
     const video = await prisma.video.findUnique({
       where: {
@@ -22,10 +23,12 @@ export const getVideoById = async (video_id: string, type: string) => {
 
     if (!video) {
       // maybe return an error
+      result = null;
+      return;
     }
 
     // else transform data using the type passed
-    const result = {
+    result = {
       ...video,
       insights: type.match("insight") ? video?.insights : null,
       timestamp_summary: type.match("summary") ? video?.timestamp_summary : null,

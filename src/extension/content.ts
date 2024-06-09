@@ -13,6 +13,11 @@
  * and no possibility of other type of videos
  */
 
+enum MethodType {
+  Get = "GET",
+  Post = "POST",
+}
+
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   if (!res) {
@@ -20,6 +25,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   }
 
   let iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
+  let video_id = "lkjlfaeil";
 
   /**  wait for youtube page to load complete to have access
    * to get the sideview*/
@@ -71,15 +77,40 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
     });
 
     /** listen to event from the tabs from the iframe and send message back to the iframe */
-    window.addEventListener("message", event => {
+    window.addEventListener("message", async event => {
       const { type, payload } = event.data;
+      const regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
 
       if (type == "timestamp_summary") {
-        chrome.runtime.sendMessage({ type, payload }, res => {
+        /** check if user is in session...if user is in session, call endpoint to transcript else call from_cache endpoint */
+
+        try {
+          const url = `http://localhost:3001/api/transcript/?video_id=${video_id}&type=${type}&language=EN`;
+          const data = await makeRequest(url, MethodType.Get);
+
           //send response back to nextjs
-          iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: res }, "*");
-        });
+          iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: data }, "*");
+        } catch (error) {
+          console.error("Failed to fetch transcript:", error);
+        }
       }
     });
   }, 3000);
 });
+
+/** utility function to make request */
+const makeRequest = async (url: string, method: string, body?: any) => {
+  const headers = {
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExNTg4NTEyODU3MTIzMzk0NzQ5NyIsIm5hbWUiOiJTb2xvbW9uIE5kaWZlcmVrZSIsImVtYWlsIjoic29sb21vbm5kaTk2QGdtYWlsLmNvbSIsImlhdCI6MTcxNzc1MzczMn0.JHXv0hsRiHpn-yGdYPqylDVc_IHsbvqMEvqzfDnvvQQ`,
+    "Content-Type": "application/json",
+  };
+  const res = await fetch(url, { method, headers });
+  if (res.ok) {
+    // return the data
+    return await res.json();
+  } else {
+    const errorDetails = await res.text();
+    console.error(`Error: ${res.status} ${res.statusText}: ${errorDetails}`);
+    throw new Error(`Request failed with status ${res.status}`);
+  }
+};
