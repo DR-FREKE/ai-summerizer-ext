@@ -2,15 +2,7 @@
 
 import { share_data } from "@/lib/data";
 import prisma from "@/lib/db";
-
-const default_data_structure = {
-  comments: null,
-  insights: null,
-  isPartial: false,
-  timestamp_summary: null,
-  transcript: null,
-  title: null,
-};
+import { default_data_structure } from "@/lib/data";
 
 /** function to get a particular video using the ID */
 export const getVideoById = async (video_id: string, type: string) => {
@@ -23,10 +15,18 @@ export const getVideoById = async (video_id: string, type: string) => {
       include: {
         timestamp_summary: true,
         insights: {
-          include: {
-            points: true,
+          select: {
+            name: true,
+            points: {
+              select: {
+                icon: true,
+                title: true,
+              },
+            },
           },
+          take: 1,
         },
+        transcript: true,
       },
     });
 
@@ -39,7 +39,7 @@ export const getVideoById = async (video_id: string, type: string) => {
     // else transform data using the type passed
     result = {
       ...default_data_structure,
-      title: video.video_name,
+      summary: video.summary,
       [type]: video[type as keyof typeof video],
     };
 
@@ -84,11 +84,7 @@ export const addVideo = async (video_data: typeof share_data) => {
             icon: ts.icon,
             tldr: ts.tldr,
             start_time: ts.start_time,
-            key_ideas: {
-              create: ts.key_ideas.map(idea => ({
-                idea,
-              })),
-            },
+            key_ideas: ts.key_ideas,
           })),
         },
         insights: {
@@ -104,8 +100,9 @@ export const addVideo = async (video_data: typeof share_data) => {
         },
       },
     });
+    console.log("success");
     return video;
-  } catch (error) {
-    return { error };
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };

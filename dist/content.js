@@ -59,7 +59,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
         return;
     }
     var iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
-    var video_id = "lkjlfaeil";
+    var video_id = new URLSearchParams(window.location.search).get("v");
     /**  wait for youtube page to load complete to have access
      * to get the sideview*/
     setTimeout(function () {
@@ -104,30 +104,16 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
         });
         /** listen to event from the tabs from the iframe and send message back to the iframe */
         window.addEventListener("message", function (event) { return __awaiter(_this, void 0, void 0, function () {
-            var _a, type, payload, regex_match, url, data, error_1;
+            var _a, type, payload, regex_match;
             var _b;
             return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        _a = event.data, type = _a.type, payload = _a.payload;
-                        regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
-                        if (!(type == "timestamp_summary")) return [3 /*break*/, 4];
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        url = "http://localhost:3001/api/transcript/?video_id=".concat(video_id, "&type=").concat(type, "&language=EN");
-                        return [4 /*yield*/, makeRequest(url, "GET")];
-                    case 2:
-                        data = _c.sent();
-                        //send response back to nextjs
-                        (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "RESPONSE_ACTION", payload: data }, "*");
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _c.sent();
-                        console.error("Failed to fetch transcript:", error_1);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                _a = event.data, type = _a.type, payload = _a.payload;
+                regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
+                if (regex_match.test(type)) {
+                    //send response back to nextjs
+                    (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "RESPONSE_ACTION", payload: { video_id: video_id, type: type } }, "*");
                 }
+                return [2 /*return*/];
             });
         }); });
     }, 3000);
@@ -142,7 +128,7 @@ var makeRequest = function (url, method, body) { return __awaiter(_this, void 0,
                     Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExNTg4NTEyODU3MTIzMzk0NzQ5NyIsIm5hbWUiOiJTb2xvbW9uIE5kaWZlcmVrZSIsImVtYWlsIjoic29sb21vbm5kaTk2QGdtYWlsLmNvbSIsImlhdCI6MTcxNzc1MzczMn0.JHXv0hsRiHpn-yGdYPqylDVc_IHsbvqMEvqzfDnvvQQ",
                     "Content-Type": "application/json",
                 };
-                return [4 /*yield*/, fetch(url, { method: "GET", headers: headers })];
+                return [4 /*yield*/, fetch(url, { method: method, headers: headers })];
             case 1:
                 res = _a.sent();
                 if (!res.ok) return [3 /*break*/, 3];

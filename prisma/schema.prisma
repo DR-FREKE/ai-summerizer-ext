@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite" // for prod, this will be postgres
+  provider = "postgresql" // for prod, this will be postgres
   url      = env("DATABASE_URL")
 }
 
@@ -15,11 +15,13 @@ model Video {
   video_name        String
   general_topic     String
   summary           String
-  transcript        String
   video_thumbnail   String
   video_url         String?
+  category          String
   timestamp_summary TimestampSummary[]
   insights          Insight[]
+  rating            Ratings[]
+  transcript        Transcripts[]
   updated_at        DateTime           @updatedAt
   created_at        DateTime           @default(now())
 
@@ -27,22 +29,33 @@ model Video {
   @@index([video_id, video_name])
 }
 
+model Transcripts {
+  id       Int                    @id @default(autoincrement())
+  content  String
+  metadata Json?
+  video_id String
+  vector   Unsupported("vector")?
+  video    Video                  @relation(fields: [video_id], references: [video_id])
+}
+
 model TimestampSummary {
-  id         String     @id @default(cuid())
+  id         String @id @default(cuid())
   icon       String
-  key_ideas  KeyIdeas[]
+  key_ideas  String
   start_time Int
   tldr       String
   video_id   String
-  video      Video      @relation(fields: [video_id], references: [video_id])
+  video      Video  @relation(fields: [video_id], references: [video_id])
+
+  @@index([video_id, start_time])
 }
 
-model KeyIdeas {
-  id           Int              @id @default(autoincrement())
-  ideas        String?
-  timestamp_id String
-  timestamp    TimestampSummary @relation(fields: [timestamp_id], references: [id])
-}
+// model KeyIdeas {
+//   id           Int              @id @default(autoincrement())
+//   ideas        String?
+//   timestamp_id String
+//   timestamp    TimestampSummary @relation(fields: [timestamp_id], references: [id])
+// }
 
 model Insight {
   id       String         @id @default(cuid())
@@ -50,6 +63,8 @@ model Insight {
   points   InsightPoint[]
   video_id String
   video    Video          @relation(fields: [video_id], references: [video_id])
+
+  @@index([video_id])
 }
 
 model InsightPoint {
@@ -61,5 +76,11 @@ model InsightPoint {
 }
 
 // create model for rating
+model Ratings {
+  id         Int    @id @default(autoincrement())
+  total_rate Int
+  video_id   String
+  video      Video  @relation(fields: [video_id], references: [video_id])
+}
 
 // create model for subscription and plan

@@ -1,9 +1,11 @@
 // TODO: use the transcript and the video ID to query chatgpt
 
-import { getTranscript, getYouTubeData, queryGPT } from "@/actions/gpt_actions";
-import { getVideoById } from "@/actions/video_actions";
+import { getTranscript, getYouTubeData } from "@/actions/youtube_actions";
+import { runGTP } from "@/actions/gpt_actions";
+import { addVideo, getVideoById } from "@/actions/video_actions";
 import { corsHeaders } from "@/lib/cors";
 import { NextRequest, NextResponse } from "next/server";
+import { default_data_structure } from "@/lib/data";
 
 export const OPTIONS = async (req: NextRequest) => {
   return NextResponse.json({}, { headers: corsHeaders });
@@ -26,14 +28,17 @@ export const GET = async (req: NextRequest) => {
     const transcript = await getTranscript(video_id);
 
     /**NOTE: cocurrently call youtube api with the video id and query chatgpt if the video doesn't exist */
-    const [data1, data2] = await Promise.all([getYouTubeData(video_id), queryGPT(transcript)]);
+    const [data1, data2] = await Promise.all([getYouTubeData(video_id), runGTP(transcript)]);
 
     /** if both data are available, transform data to save to Database */
     if (data1 && data2) {
-      return NextResponse.json({ message: { data1, data2 } }, { headers: corsHeaders });
+      const video_data = { ...data1[0], ...data2 };
+      await addVideo(video_data); // add video data to databse
+
+      return NextResponse.json({ message: { ...default_data_structure, summary: video_data.summary, [type]: video_data[type as keyof typeof video] } }, { headers: corsHeaders });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("error occured", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 };

@@ -1,77 +1,100 @@
 "use server";
 
-import { ItemsType, CommentSortType, CommentType, VideoDataType } from "@/lib/types";
-import { YoutubeTranscript, type TranscriptResponse } from "youtube-transcript";
-import { makeRequest } from "@/lib/utils";
+import { type TranscriptResponse } from "youtube-transcript";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { type ChatPromptTemplate } from "@langchain/core/prompts";
+import { formatDocumentsAsString } from "langchain/util/document";
+import { PrismaVectorStore } from "@langchain/community/vectorstores/prisma";
+import { OpenAIEmbeddings, OpenAI, ChatOpenAI, type OpenAIClient } from "@langchain/openai";
+import prisma from "@/lib/db";
+import { Prisma } from "@prisma/client";
+import { TIMESTAMP_PROMPT, TIMESTAMP_TOOL_SCHEMA, TimestampSummaryType, outputParser } from "@/lib/prompt/timestamp.prompt";
+import { INSIGHT_PROMPT, INSIGHT_TOOL_SCHEMA, KeyInsightType, insightOutputParser } from "@/lib/prompt/insight.prompt";
+import { SUMMARY_PROMPT, SUMMARY_TOOL_SCHEMA, SummaryType, summaryOutputParser } from "@/lib/prompt/summary.prompt";
 
-const API_KEY = process.env.API_KEY; // api key for youtube data api
+const openAIApiKey = process.env.OPENAI_API_KEY; // api key for openai
 
-/** function to get video category */
-export const getVideoCategory = async (category_id: string) => {
-  const data = await makeRequest(`https://www.googleapis.com/youtube/v3/videoCategories?id=${category_id}&key=${API_KEY}&part=snippet`);
-  return data;
-};
+export const addFormattedTranscript = async (transcript: TranscriptResponse[], video_id: string) => {
+  const transcript_texts = transcript.map(item => item.text).join(" "); // get the texts in the transcript array
+  // run query
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    separators: ["\n\n", "\n", " ", ""],
+    chunkOverlap: 50,
+  });
+  const chunks = await splitter.createDocuments([transcript_texts]);
 
-/** function to get top comments for a particular video */
-export const getVideoTopComments = async (video_id: string) => {
-  const url = `https://www.googleapis.com/youtube/v3/commentThreads?videoId=${video_id}&key=${API_KEY}&part=snippet&order=relevance`;
-  const data = await makeRequest(url);
+  // let currentTime = 0.0;
 
-  return data.items
-    .map((item: ItemsType<CommentType>) => {
-      const {
-        snippet: {
-          topLevelComment: { snippet: comment_item },
-        },
-      } = item;
+  // const output = chunks.map(chunk => {
+  //   const startTime: number = currentTime;
+  //   currentTime += chunk.pageContent.split(" ").length * (transcript.reduce((acc, segment) => acc + segment.duration, 0) / transcript_texts.split(" ").length);
+  //   return { ...chunk, startTime };
+  // });
 
-      return {
-        author_channel_url: comment_item.authorChannelUrl,
-        author_display_name: comment_item.authorDisplayName,
-        author_profile_image_url: comment_item.authorProfileImageUrl,
-        id: item.snippet.topLevelComment.id,
-        like_count: comment_item.likeCount,
-        published_at: comment_item.publishedAt,
-        text_display: comment_item.textDisplay,
-        total_reply_count: item.snippet.totalReplyCount,
-        updated_at: comment_item.updatedAt,
-      };
-    })
-    .sort((a: CommentSortType, b: CommentSortType) => b.like_count - a.like_count);
-};
+  const document_as_string = formatDocumentsAsString(chunks);
 
-/** function to call youtube API */
-export const getYouTubeData = async (video_id: string) => {
-  // call api here
-  const url = `https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,contentDetails,statistics`;
-  const data = await makeRequest(url);
-  //   if (data.items.length > 0) {
-  //     const category_id = data.items[0].snippet.categoryId;
-  //     const category_data = await getVideoCategory(category_id);
-  //     data.items[0].snippet.category_name = category_data.items.find(item => item.id == category_id)?.snippet.title; // get the title and add it as the category name
-  //     return data; // TODO: transform data
-  //   }
-  return data.items.map((item: ItemsType<VideoDataType>) => ({
-    video_id: item.id,
-    video_name: item.snippet.title,
-    video_thumbnail: item.snippet.thumbnails.default.url,
-    video_url: "some video url",
+  const vector_store = PrismaVectorStore.withModel(prisma).create(new OpenAIEmbeddings({ openAIApiKey }), {
+    prisma: Prisma,
+    tableName: "Transcripts",
+    vectorColumnName: "vector",
+    columns: { id: PrismaVectorStore.IdColumn, content: PrismaVectorStore.ContentColumn },
+  });
+
+  const documents = chunks.map(chunk => ({
+    content: chunk.pageContent,
+    metadata: chunk.metadata,
+    video_id,
   }));
+
+  await vector_store.addModels(await prisma.$transaction(documents.map(doc => prisma.transcripts.create({ data: doc }))));
 };
 
-export const getTranscript = async (video_id: string) => {
-  try {
-    // get the video transcript
-    const transcript = await YoutubeTranscript.fetchTranscript(video_id);
-    return transcript;
-  } catch (error) {
-    throw new Error("couldn't fetch transcript");
-  }
+interface ConfigInterface {
+  tool: OpenAIClient.ChatCompletionTool;
+  prompt: ChatPromptTemplate;
+  parser: any;
+}
+
+export const queryGPT = async <T>(transcript: TranscriptResponse[], type: string, configs: ConfigInterface): Promise<Array<T>> => {
+  const transcript_texts = transcript.map(item => `${item.offset} ${item.text}`).join(" "); // get the texts in the transcript array
+
+  /** run chat gpt query */
+  const model = new ChatOpenAI({
+    modelName: "gpt-4-1106-preview",
+    temperature: 0.9,
+    openAIApiKey,
+  });
+
+  let modelWithTool;
+
+  // const config = type_template[type as keyof typeof type_template];
+
+  modelWithTool = model.bind({
+    tools: [configs.tool],
+  });
+
+  // const type_prompt = PromptTemplate.fromTemplate(type_template[type as keyof typeof type_template]);
+  const chain = configs.prompt.pipe(modelWithTool).pipe(configs.parser); // use model or if you setup modelWithTool, use that instead
+
+  const res = await chain.invoke({ transcript: transcript_texts });
+  return res as T[];
 };
 
-export const queryGPT = async (transcript: TranscriptResponse[]) => {
+export const runGTP = async (transcript: TranscriptResponse[]) => {
   if (transcript && transcript.length !== 0) {
-    // run query
-    return transcript;
+    // run query for timestamp summary
+    const timestamp_config = { tool: TIMESTAMP_TOOL_SCHEMA, prompt: TIMESTAMP_PROMPT, parser: outputParser };
+    const timestamp_summary = await queryGPT(transcript, "timestamp_summary", timestamp_config);
+
+    const insight_config = { tool: INSIGHT_TOOL_SCHEMA, prompt: INSIGHT_PROMPT, parser: insightOutputParser };
+    const insight = await queryGPT<KeyInsightType>(transcript, "insights", insight_config);
+
+    const summary_config = { tool: SUMMARY_TOOL_SCHEMA, prompt: SUMMARY_PROMPT, parser: summaryOutputParser };
+    const summary = await queryGPT<SummaryType>(transcript, "summary", summary_config);
+
+    return { ...summary[0], timestamp_summary, insights: insight[0] };
   }
+
+  throw new Error("Transcript is empty");
 };

@@ -25,7 +25,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   }
 
   let iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
-  let video_id = "lkjlfaeil";
+  const video_id = new URLSearchParams(window.location.search).get("v");
 
   /**  wait for youtube page to load complete to have access
    * to get the sideview*/
@@ -81,18 +81,9 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
       const { type, payload } = event.data;
       const regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
 
-      if (type == "timestamp_summary") {
-        /** check if user is in session...if user is in session, call endpoint to transcript else call from_cache endpoint */
-
-        try {
-          const url = `http://localhost:3001/api/transcript/?video_id=${video_id}&type=${type}&language=EN`;
-          const data = await makeRequest(url, MethodType.Get);
-
-          //send response back to nextjs
-          iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: data }, "*");
-        } catch (error) {
-          console.error("Failed to fetch transcript:", error);
-        }
+      if (regex_match.test(type)) {
+        //send response back to nextjs
+        iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: { video_id, type } }, "*");
       }
     });
   }, 3000);
