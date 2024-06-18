@@ -13,11 +13,6 @@
  * and no possibility of other type of videos
  */
 
-enum MethodType {
-  Get = "GET",
-  Post = "POST",
-}
-
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   if (!res) {
@@ -86,22 +81,10 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
         iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: { video_id, type } }, "*");
       }
     });
+
+    /** listen for signin event from the iframe, process and send message back */
+    // window.addEventListener('message', async event => {
+    //   chrome.runtime.sendMessage({createNewTab:true, url:""})
+    // })
   }, 3000);
 });
-
-/** utility function to make request */
-const makeRequest = async (url: string, method: string, body?: any) => {
-  const headers = {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExNTg4NTEyODU3MTIzMzk0NzQ5NyIsIm5hbWUiOiJTb2xvbW9uIE5kaWZlcmVrZSIsImVtYWlsIjoic29sb21vbm5kaTk2QGdtYWlsLmNvbSIsImlhdCI6MTcxNzc1MzczMn0.JHXv0hsRiHpn-yGdYPqylDVc_IHsbvqMEvqzfDnvvQQ`,
-    "Content-Type": "application/json",
-  };
-  const res = await fetch(url, { method, headers });
-  if (res.ok) {
-    // return the data
-    return await res.json();
-  } else {
-    const errorDetails = await res.text();
-    console.error(`Error: ${res.status} ${res.statusText}: ${errorDetails}`);
-    throw new Error(`Request failed with status ${res.status}`);
-  }
-};

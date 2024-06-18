@@ -43,7 +43,7 @@ export const getYouTubeData = async (video_id: string) => {
   return data.items.map((item: ItemsType<VideoDataType>) => ({
     video_id: item.id,
     video_name: item.snippet.title,
-    video_thumbnail: item.snippet.thumbnails.default.url,
+    video_thumbnail: Object.keys(item.snippet.thumbnails).map(key => ({ thumbnail_url: item.snippet.thumbnails[key as keyof typeof item.snippet.thumbnails].url })),
     video_url: `https://www.youtube.com/watch?v=${item.id}`,
   }));
 };

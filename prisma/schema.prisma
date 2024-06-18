@@ -10,23 +10,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Article {
+  id       Int       @id @default(autoincrement())
+  video_id String    @unique
+  ratings  Ratings[]
+  video    Video     @relation(fields: [video_id], references: [video_id])
+
+  @@index([id])
+  @@index([video_id])
+}
+
 model Video {
-  video_id          String             @id @unique
-  video_name        String
-  general_topic     String
-  summary           String
-  video_thumbnail   String
-  video_url         String?
-  category          String
-  timestamp_summary TimestampSummary[]
-  insights          Insight[]
-  rating            Ratings[]
-  transcript        Transcripts[]
-  updated_at        DateTime           @updatedAt
-  created_at        DateTime           @default(now())
+  video_id            String             @id @unique
+  video_name          String
+  general_topic       String
+  slug                String             @unique
+  summary             String
+  video_thumbnail     Thumbnail[]
+  video_url           String?
+  category            String
+  timestamp_summary   TimestampSummary[]
+  insights            Insight[]
+  transcript          Transcripts[]
+  question_and_answer QuestionAnswer[]
+  updated_at          DateTime           @updatedAt
+  created_at          DateTime           @default(now())
+  Article             Article?
 
   @@unique([video_name])
   @@index([video_id, video_name])
+  @@index([created_at])
+}
+
+model Thumbnail {
+  id            Int    @id @default(autoincrement())
+  video_id      String
+  thumbnail_url String
+  video         Video  @relation(fields: [video_id], references: [video_id])
+
+  @@index([video_id])
 }
 
 model Transcripts {
@@ -36,26 +58,31 @@ model Transcripts {
   video_id String
   vector   Unsupported("vector")?
   video    Video                  @relation(fields: [video_id], references: [video_id])
+
+  @@index([video_id])
 }
 
 model TimestampSummary {
-  id         String @id @default(cuid())
+  id         String     @id @default(cuid())
   icon       String
-  key_ideas  String
   start_time Int
   tldr       String
   video_id   String
-  video      Video  @relation(fields: [video_id], references: [video_id])
+  key_ideas  KeyIdeas[]
+  video      Video      @relation(fields: [video_id], references: [video_id])
 
-  @@index([video_id, start_time])
+  @@index([id])
+  @@index([video_id])
 }
 
-// model KeyIdeas {
-//   id           Int              @id @default(autoincrement())
-//   ideas        String?
-//   timestamp_id String
-//   timestamp    TimestampSummary @relation(fields: [timestamp_id], references: [id])
-// }
+model KeyIdeas {
+  id           Int              @id @default(autoincrement())
+  idea         String?
+  timestamp_id String
+  timestamp    TimestampSummary @relation(fields: [timestamp_id], references: [id])
+
+  @@index([timestamp_id])
+}
 
 model Insight {
   id       String         @id @default(cuid())
@@ -73,14 +100,28 @@ model InsightPoint {
   title      String
   insight_id String
   insight    Insight @relation(fields: [insight_id], references: [id])
+
+  @@index([insight_id])
 }
 
 // create model for rating
 model Ratings {
-  id         Int    @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   total_rate Int
-  video_id   String
-  video      Video  @relation(fields: [video_id], references: [video_id])
+  article_id Int
+  video      Article @relation(fields: [article_id], references: [id])
+
+  @@index([article_id])
+}
+
+model QuestionAnswer {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+  video_id String
+  Video    Video  @relation(fields: [video_id], references: [video_id])
+
+  @@index([video_id])
 }
 
 // create model for subscription and plan

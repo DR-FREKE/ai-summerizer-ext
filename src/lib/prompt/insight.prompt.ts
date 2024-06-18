@@ -54,7 +54,7 @@ export const INSIGHT_PROMPT = ChatPromptTemplate.fromMessages([
     example transcript: 
     ${transcript_example}
 
-    generated timestamp summary:
+    generated insights:
     💡 Bend offers Hope by promising that everything that can run in parallel will run in parallel, without needing to know anything about Cuda, blocks, locks, mutexes, or regex's.
     🧙‍♂️ The language is described as "Magic" and is set to revolutionize the way we write code for GPUs.
     🤯 Your code running on a single thread is like going to a KFC with only one employee doing everything.
@@ -72,7 +72,7 @@ export const INSIGHT_PROMPT = ChatPromptTemplate.fromMessages([
     - DO NOT make it "what they were talking about" instead fine grain it to match another individual's opinion.
 
     Respond with a JSON object with two keys: "name", and "points".
-    "name" will always be titled "Key Insights", "points" will be a JSON array with two keys: "title" and "icon".
+    "name" will always default to "Key Insights" except if you can come up with the right name for it (name should be very brief if you decide to generate one), "points" will be a JSON array with two keys: "title" and "icon".
     In the points array, "title" will be the specific key insight you generated, and "icon" will be the generated icon.
     Take a deep breath, and work your way through the transcript step by step.`,
   ],

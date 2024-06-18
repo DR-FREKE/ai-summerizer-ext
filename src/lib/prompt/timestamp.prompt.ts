@@ -64,17 +64,17 @@ export const TIMESTAMP_PROMPT = ChatPromptTemplate.fromMessages([
 
     Rules:
     - Highlight key ideas and include specific quotes in your detailed summary.
-    - Respond with as many timestamp summary as it might take to cover the entire transcript.
+    - Respond with as many timestamp summary as it might take to cover the entire transcript, going through every line of the transcript.
     - Go into as much detail as you can, while keeping each timestamp summary on a very specific part of the transcript.
     - For every new paragraph of a new summary, include the time offset of your summary.
     - For every new paragraph of a new summary, include a tldr for your summary.
     - For every new paragraph of a new summary, include the right icons for your summary.
-    - Reduce the amount of time you can use the same icon for different summaries.
+    - Use befitting svg icons that are easy to integrate to a frontend application.
     - DO NOT respond with timestamp summary like: "The host introduces XYZ." or "The video discusses" or "The video opens by XYZ", instead explain XYZ and how it works.
     - DO NOT make it "what they were talking about" instead fine grain it.
 
-    Respond with a JSON array with three keys: "key_ideas", "icon", "tldr", and "start_time".
-    "key_ideas" will be the specific timestamp summary, "tldr" will be a too long don't read for that summary you generated, "icon" will be the generated icon and "start_time" will be the offset time of your generated summary.
+    Respond with a JSON array with four keys: "key_ideas", "tldr", "start_time" and "icon".
+    "key_ideas" will be an array of string that contains different key ideas you could get from the transcript, "tldr" will be the specific timestamp summary, "start_time" will be the offset time of your generated summary and "icon" will be your generated icon.
     Take a deep breath, and work your way through the transcript step by step.`,
   ],
   ["human", "Transcript: {transcript}"],

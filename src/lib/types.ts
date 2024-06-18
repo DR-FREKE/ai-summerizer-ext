@@ -25,6 +25,9 @@ export type VideoDataType = {
     default: {
       url: string;
     };
+    medium: {
+      url: string;
+    };
   };
 };
 
