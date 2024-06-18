@@ -78,7 +78,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
 
       if (regex_match.test(type)) {
         //send response back to nextjs
-        iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: { video_id, type } }, "*");
+        iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: { url: "/transcript", video_id, type } }, "*");
       }
     });
 
