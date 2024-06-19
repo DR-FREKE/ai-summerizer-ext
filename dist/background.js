@@ -97,18 +97,3 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         return true;
     }
 });
-// /** utility function to make request */
-// const makeRequest = async (url: string, method: MethodType, body?: any) => {
-//   try {
-//     const headers = {
-//       Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExNTg4NTEyODU3MTIzMzk0NzQ5NyIsIm5hbWUiOiJTb2xvbW9uIE5kaWZlcmVrZSIsImVtYWlsIjoic29sb21vbm5kaTk2QGdtYWlsLmNvbSIsImlhdCI6MTcxNzc1MzczMn0.JHXv0hsRiHpn-yGdYPqylDVc_IHsbvqMEvqzfDnvvQQ`,
-//     };
-//     const res = await fetch(url, { method, headers });
-//     if (res.ok) {
-//       // return the data
-//       return await res.json();
-//     } else {
-//       throw new Error("error occured");
-//     }
-//   } catch (error) {}
-// };

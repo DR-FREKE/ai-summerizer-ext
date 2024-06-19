@@ -107,7 +107,7 @@ model InsightPoint {
 // create model for rating
 model Ratings {
   id         Int     @id @default(autoincrement())
-  total_rate Int
+  rate       Int
   article_id Int
   video      Article @relation(fields: [article_id], references: [id])
 

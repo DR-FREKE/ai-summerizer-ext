@@ -12,14 +12,19 @@ export const SUMMARY_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
     parameters: {
       type: "object",
       properties: {
-        summary: {
-          type: "string",
-        },
-        general_topic: {
-          type: "string",
-        },
-        category: {
-          type: "string",
+        summary_data: {
+          type: "object",
+          properties: {
+            summary: {
+              type: "string",
+            },
+            general_topic: {
+              type: "string",
+            },
+            category: {
+              type: "string",
+            },
+          },
         },
       },
       required: ["summaries"],
@@ -42,7 +47,7 @@ export const SUMMARY_PROMPT = ChatPromptTemplate.fromMessages([
     - Generate a typical category with a single word this transcript you've summerized can belong to.
     - Include a general but befitting name for your summerized transcript or the video.
     - The generated name should be SEO compatible, allowing me get the right result when I search for that name on youtube.
-    - DO NOT respond with a summary like: "The transcript discusses XYZ.", instead explain what XYZ is and how it works.
+    - DO NOT respond with a summary like: "The transcript discusses XYZ." or "The presenter XYZ", instead explain what XYZ is and how it works.
     
     Respond with a JSON object with three keys: "summary", "general_topic" and "category".
     "summary" will be the specific summary you generated, general_topic will be the generated name and category will be the type of category this transcript falls into.
@@ -75,8 +80,8 @@ export const summaryOutputParser = (output: BaseMessageChunk): Array<SummaryType
 
   const summaries: Array<SummaryType> = toolCalls
     .map(call => {
-      const summary = JSON.parse(call.function.arguments);
-      return summary;
+      const { summary_data } = JSON.parse(call.function.arguments);
+      return summary_data;
     })
     .flat();
 

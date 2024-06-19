@@ -67,21 +67,24 @@ export const TIMESTAMP_PROMPT = ChatPromptTemplate.fromMessages([
     - Respond with as many timestamp summary as it might take to cover the entire transcript, going through every line of the transcript.
     - Go into as much detail as you can, while keeping each timestamp summary on a very specific part of the transcript.
     - For every new paragraph of a new summary, include the time offset of your summary.
-    - For every new paragraph of a new summary, include a tldr for your summary.
-    - For every new paragraph of a new summary, include the right icons for your summary.
-    - Use befitting svg icons that are easy to integrate to a frontend application.
+    - For every new paragraph of a new summary, include the right emoji for your summary.
+    - Use befitting emojis that are easy to integrate to a frontend application.
+    - DO NOT add the emoji and offset to the generated summary or tldr.
     - DO NOT respond with timestamp summary like: "The host introduces XYZ." or "The video discusses" or "The video opens by XYZ", instead explain XYZ and how it works.
     - DO NOT make it "what they were talking about" instead fine grain it.
 
     Respond with a JSON array with four keys: "key_ideas", "tldr", "start_time" and "icon".
-    "key_ideas" will be an array of string that contains different key ideas you could get from the transcript, "tldr" will be the specific timestamp summary, "start_time" will be the offset time of your generated summary and "icon" will be your generated icon.
+    "key_ideas" will be an array of string that contains different key ideas you could get from the transcript, "tldr" will be the specific timestamp summary, "start_time" will be the offset time of your generated summary and "icon" will be your generated emoji.
     Take a deep breath, and work your way through the transcript step by step.`,
   ],
   ["human", "Transcript: {transcript}"],
 ]);
 
 export type TimestampSummaryType = {
-  key_ideas: string;
+  key_ideas: string[];
+  tldr: string;
+  start_time: number;
+  icon: string;
 };
 
 /** use the structure you defined earlier to generate a fine output */

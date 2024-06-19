@@ -48,11 +48,6 @@ var _this = this;
  * NOTE: find out if the extension is supposed to work for only youtube video
  * and no possibility of other type of videos
  */
-var MethodType;
-(function (MethodType) {
-    MethodType["Get"] = "GET";
-    MethodType["Post"] = "POST";
-})(MethodType || (MethodType = {}));
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
     if (!res) {
@@ -111,36 +106,14 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
                 regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
                 if (regex_match.test(type)) {
                     //send response back to nextjs
-                    (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "RESPONSE_ACTION", payload: { video_id: video_id, type: type } }, "*");
+                    (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "RESPONSE_ACTION", payload: { url: "/transcript", video_id: video_id, type: type } }, "*");
                 }
                 return [2 /*return*/];
             });
         }); });
+        /** listen for signin event from the iframe, process and send message back */
+        // window.addEventListener('message', async event => {
+        //   chrome.runtime.sendMessage({createNewTab:true, url:""})
+        // })
     }, 3000);
 });
-/** utility function to make request */
-var makeRequest = function (url, method, body) { return __awaiter(_this, void 0, void 0, function () {
-    var headers, res, errorDetails;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                headers = {
-                    Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExNTg4NTEyODU3MTIzMzk0NzQ5NyIsIm5hbWUiOiJTb2xvbW9uIE5kaWZlcmVrZSIsImVtYWlsIjoic29sb21vbm5kaTk2QGdtYWlsLmNvbSIsImlhdCI6MTcxNzc1MzczMn0.JHXv0hsRiHpn-yGdYPqylDVc_IHsbvqMEvqzfDnvvQQ",
-                    "Content-Type": "application/json",
-                };
-                return [4 /*yield*/, fetch(url, { method: method, headers: headers })];
-            case 1:
-                res = _a.sent();
-                if (!res.ok) return [3 /*break*/, 3];
-                return [4 /*yield*/, res.json()];
-            case 2: 
-            // return the data
-            return [2 /*return*/, _a.sent()];
-            case 3: return [4 /*yield*/, res.text()];
-            case 4:
-                errorDetails = _a.sent();
-                console.error("Error: ".concat(res.status, " ").concat(res.statusText, ": ").concat(errorDetails));
-                throw new Error("Request failed with status ".concat(res.status));
-        }
-    });
-}); };

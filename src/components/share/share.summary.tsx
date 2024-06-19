@@ -9,6 +9,8 @@ import { TimestampComp } from "../timestamp";
 import clsx from "clsx";
 import { Apple } from "iconsax-react";
 import { YoutubeVideoComp } from "./youtube";
+import { AnimatedDiv, SliderImage } from "../animated_div";
+import { DownloadBtn } from "../button";
 
 const convertUnicodeToEmoji = (unicode: string) => JSON.parse(`"${unicode}"`);
 
@@ -28,43 +30,6 @@ const processTimestamp = (data: { icon: any; tldr: string; start_time: number })
   start_time: formatTime(data.start_time),
   tldr: data.tldr,
 });
-
-const DownloadBtn = ({ className, width = 28, height = 28 }: { className?: React.ReactNode; width?: number; height?: number }) => (
-  <Link
-    href={""}
-    target="_blank"
-    className={clsx(
-      "sm:rounded-xl rounded-lg sm:p-[10px_20px] p-[6px_12px_6px_10px] flex sm:gap-[10px] gap-2 justify-center items-center bg-white sm:max-w-none max-w-[140px] shadow-md border-[0.5px] border-black/15",
-      className
-    )}
-  >
-    <Image src={"https://eightify.app/seo-static/Chrome_icon.svg"} alt="" width={width} height={height} />
-    <p className="text-[#000] sm:text-[18px] text-[10px] sm:font-semibold sm:leading-[22px] leading-3 sm:tracking-[-0.18px] tracking-[0.1px]">
-      <span>Install&nbsp;on </span>
-      <span className="lbs-button__browser-name">Chrome</span>
-    </p>
-  </Link>
-);
-
-const SliderImage = ({ width, height }: { width: string; height: number }) => (
-  <>
-    <Image src="https://eightify.app/shared/static/lights-banner/blue.svg" alt="" width={100} height={height} className={`absolute w-[100%] blur-[5rem] sm:scale-[10] animate-moving-blue`} />
-    <Image
-      src="https://eightify.app/shared/static/lights-banner/violet.svg"
-      alt=""
-      width={100}
-      height={height}
-      className="absolute w-[100%] blur-[5rem] transform sm:scale-[10] animate-moving-violet"
-    />
-    <Image
-      src="https://eightify.app/shared/static/lights-banner/yellow.svg"
-      alt=""
-      width={100}
-      height={height}
-      className="absolute w-[100%] blur-[5rem] transform sm:scale-[10] animate-moving-yellow"
-    />
-  </>
-);
 
 const SummaryText = ({ text }: { text?: string | ReactNode }) => (
   <p className="text-base sm:text-2xl text-white font-extrabold leading-5 sm:leading-7 tracking-[-0.12px] max-w-[136px] sm:max-w-[280px]">
@@ -128,30 +93,25 @@ export const ShareSummary = ({ data }: { data: any }) => {
         <h2 className="text-[32px] font-extrabold leading-5 mb-6">Timestamped Summary</h2>
         <FlatList data={timestamp_summary} renderItem={renderTimestampSum} className="gap-[24px]" />
       </section>
-      <div className="my-[24px]">
-        <div className="md:rounded-[24px] cursor-pointer relative flex justify-center rounded-[20px] bg-[#141414] overflow-hidden">
-          <div className="md:bg-lbl-background md:bg-lbl-background-position md:bg-lbl-background-size md:bg-no-repeat absolute top-0 left-0 w-full h-full translate-x-[-4px]">
-            <SliderImage width="300" height={300} />
-          </div>
-          <div className="flex flex-col items-center gap-[28px] z-10 my-[32px]">
-            <picture>
-              <Image src={"https://eightify.app/seo-static/sparkles-mono.svg"} alt="" width="80" height="80" quality={"95"} priority={true} className="" />
-            </picture>
-            <p className="text-white text-center text-[32px] font-extrabold leading-[36px] max-w-custom"> Summarize any video by yourself </p>
-            <div className="flex-1 relative flex flex-col items-center md:max-w-auto max-w-[680px] gap-[12px]">
-              <DownloadBtn className="!p-[16px_24px]" width={32} height={32} />
-              <div className="flex gap-[12px] items-center">
-                <span className="md:hidden block text-brand-white text-center">Also:</span>
-                <span className="md:block hidden text-brand-white text-center">Other options:</span>
-                <Link href="" target="_blank" className="flex gap-[4px] items-center text-brand-white02">
-                  <Apple variant="Bulk" size={22} />
-                  <span>IOS</span>
-                </Link>
-              </div>
+      <AnimatedDiv>
+        <div className="flex flex-col items-center gap-[28px] z-10 my-[32px]">
+          <picture>
+            <Image src={"https://eightify.app/seo-static/sparkles-mono.svg"} alt="" width="80" height="80" quality={"95"} priority={true} className="" />
+          </picture>
+          <p className="text-white text-center text-[32px] font-extrabold leading-[36px] max-w-custom"> Summarize any video by yourself </p>
+          <div className="flex-1 relative flex flex-col items-center md:max-w-auto max-w-[680px] gap-[12px]">
+            <DownloadBtn className="!p-[16px_24px]" width={32} height={32} />
+            <div className="flex gap-[12px] items-center">
+              <span className="md:hidden block text-brand-white text-center">Also:</span>
+              <span className="md:block hidden text-brand-white text-center">Other options:</span>
+              <Link href="" target="_blank" className="flex gap-[4px] items-center text-brand-white02">
+                <Apple variant="Bulk" size={22} />
+                <span>IOS</span>
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedDiv>
     </div>
   );
 };

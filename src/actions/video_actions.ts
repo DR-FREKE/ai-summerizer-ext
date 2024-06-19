@@ -103,6 +103,7 @@ export const getVideoByName = async (video_name: string, category: string) => {
             question_and_answer: true,
           },
         },
+        ratings: true,
       },
     });
 

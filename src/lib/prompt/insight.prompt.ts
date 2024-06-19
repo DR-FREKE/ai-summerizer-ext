@@ -68,11 +68,13 @@ export const INSIGHT_PROMPT = ChatPromptTemplate.fromMessages([
     - Respond with as many key insights as it might take to cover the entire transcript.
     - Go into as much detail as you can, while keeping each key insight on a very specific part of the transcript.
     - For every new paragraph of a new summary, include the right icons for your summary.
+    - Generate a general but fitting name for the summerized transcript.
+    - DO NOT return a name like: "Key Insight of XYZ".
     - DO NOT respond with key insights like: "The host introduces XYZ." or "The video introduces XYZ" or "The video discusses" or "The video opens by XYZ", instead explain XYZ and how it works or behave.
     - DO NOT make it "what they were talking about" instead fine grain it to match another individual's opinion.
 
     Respond with a JSON object with two keys: "name", and "points".
-    "name" will always default to "Key Insights" except if you can come up with the right name for it (name should be very brief if you decide to generate one), "points" will be a JSON array with two keys: "title" and "icon".
+    "name" will be the generated name and if nothing was generated, default "name" to "Key Insight", "points" will be a JSON array with two keys: "title" and "icon".
     In the points array, "title" will be the specific key insight you generated, and "icon" will be the generated icon.
     Take a deep breath, and work your way through the transcript step by step.`,
   ],

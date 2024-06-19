@@ -7,6 +7,7 @@ const config: Config = {
       colors: {
         "brand-gray": "rgba(0, 0, 0, 0.04)",
         "brand-gray02": "rgba(0, 0, 0, 0.48)",
+        "brand-gray03": "rgba(0, 0, 0, 0.08)",
         "brand-white": "rgba(255, 255, 255, 0.64)",
         "brand-white02": "rgba(255, 255, 255, 0.80)",
       },
@@ -19,7 +20,7 @@ const config: Config = {
       fontFamily: {
         "lora-font": ["Lora", "Verdana", "Arial", "sans-serif"],
         "grotesk-font": "Space Grotesk",
-        "inter-font": ["Inter", "Verdana", "Arial", "sans-serif"],
+        "inter-font": "Inter",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

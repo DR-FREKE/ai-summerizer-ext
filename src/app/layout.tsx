@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import Providers from "@/context/providers";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Lora({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Tube Analyzer",
@@ -19,9 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Providers>
-        <body className={inter.className}>
+        <body>
           <Header />
           {children}
+          <Footer />
         </body>
       </Providers>
     </html>
