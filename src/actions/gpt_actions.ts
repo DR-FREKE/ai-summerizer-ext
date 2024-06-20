@@ -97,16 +97,16 @@ export const queryGPT = async <T>(transcript: TranscriptResponse[], configs: Con
 export const runGTP = async (transcript: TranscriptResponse[]) => {
   if (transcript && transcript.length !== 0) {
     // run query for timestamp summary
-    const timestamp_config = { tool: TIMESTAMP_TOOL_SCHEMA, prompt: TIMESTAMP_PROMPT, parser_type: "timestamp_summary" }; // config tools
-    const timestamp_summary = await queryGPT(transcript, timestamp_config);
+    // const timestamp_config = { tool: TIMESTAMP_TOOL_SCHEMA, prompt: TIMESTAMP_PROMPT, parser_type: "timestamp_summary" }; // config tools
+    // const timestamp_summary = await queryGPT(transcript, timestamp_config);
 
     // const insight_config = { tool: INSIGHT_TOOL_SCHEMA, prompt: INSIGHT_PROMPT, parser_type: "insights" };
     // const insight = await queryGPT<KeyInsightType>(transcript, insight_config);
 
-    // const summary_config = { tool: SUMMARY_TOOL_SCHEMA, prompt: SUMMARY_PROMPT, parser: summaryOutputParser };
-    // const summary = await queryGPT<SummaryType>(transcript, summary_config);
+    const summary_config = { tool: SUMMARY_TOOL_SCHEMA, prompt: SUMMARY_PROMPT, parser: summaryOutputParser };
+    const summary = await queryGPT<SummaryType>(transcript, summary_config);
 
-    return { timestamp_summary };
+    return { ...summary[0] };
   }
 
   throw new Error("Transcript is empty");
