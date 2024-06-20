@@ -28,11 +28,11 @@ export const GET = async (req: NextRequest) => {
     const transcript = await getTranscript(video_id);
 
     /**NOTE: cocurrently call youtube api with the video id and query chatgpt if the video doesn't exist */
-    const [data1] = await Promise.all([getYouTubeData(video_id)]);
+    const [data1, data2] = await Promise.all([getYouTubeData(video_id), runGTP(transcript)]);
 
     /** if both data are available, transform data to save to Database */
-    if (data1) {
-      const video_data = { ...data1[0] };
+    if (data1 && data2) {
+      const video_data = { ...data1[0], ...data2 };
       // await addVideo(video_data); // add video data to databse
 
       return NextResponse.json({ message: { ...default_data_structure, summary: video_data.summary, [type]: video_data[type as keyof typeof video] } }, { headers: corsHeaders });
