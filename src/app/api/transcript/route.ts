@@ -7,6 +7,9 @@ import { corsHeaders } from "@/lib/cors";
 import { NextRequest, NextResponse } from "next/server";
 import { default_data_structure } from "@/lib/data";
 
+export const maxDuration = 50; // This function can run for a maximum of 5 seconds
+export const dynamic = "force-dynamic";
+
 export const OPTIONS = async (req: NextRequest) => {
   return NextResponse.json({}, { headers: corsHeaders });
 };
