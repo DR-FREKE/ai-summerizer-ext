@@ -85,7 +85,7 @@ CREATE TABLE "InsightPoint" (
 -- CreateTable
 CREATE TABLE "Ratings" (
     "id" SERIAL NOT NULL,
-    "total_rate" INTEGER NOT NULL,
+    "rate" INTEGER NOT NULL,
     "article_id" INTEGER NOT NULL,
 
     CONSTRAINT "Ratings_pkey" PRIMARY KEY ("id")
@@ -103,6 +103,12 @@ CREATE TABLE "QuestionAnswer" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Article_video_id_key" ON "Article"("video_id");
+
+-- CreateIndex
+CREATE INDEX "Article_id_idx" ON "Article"("id");
+
+-- CreateIndex
+CREATE INDEX "Article_video_id_idx" ON "Article"("video_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Video_video_id_key" ON "Video"("video_id");

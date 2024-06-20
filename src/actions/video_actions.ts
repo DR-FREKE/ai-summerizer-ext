@@ -123,7 +123,7 @@ export const addVideo = async (video_data: typeof share_data) => {
       prisma.video.create({
         data: {
           ...video_data,
-          slug: video_data.general_topic?.toLowerCase().replace(/:/g, "").replace(/\s/g, "-"),
+          slug: video_data.general_topic?.replace(/:/g, "").replace(/\s/g, "-").toLowerCase(),
           category: video_data.category?.toLowerCase(),
           timestamp_summary: {
             create: timestamp_summary.map(ts => ({
