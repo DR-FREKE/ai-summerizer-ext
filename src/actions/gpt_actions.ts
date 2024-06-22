@@ -5,13 +5,21 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { type ChatPromptTemplate } from "@langchain/core/prompts";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { PrismaVectorStore } from "@langchain/community/vectorstores/prisma";
-import { OpenAIEmbeddings, OpenAI, ChatOpenAI, type OpenAIClient } from "@langchain/openai";
+import { OpenAIEmbeddings, ChatOpenAI, type OpenAIClient } from "@langchain/openai";
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
-import { TIMESTAMP_PROMPT, TIMESTAMP_TOOL_SCHEMA, TimestampSummaryType, outputParser as timestampOutputParser } from "@/lib/prompt/timestamp.prompt";
-import { INSIGHT_PROMPT, INSIGHT_TOOL_SCHEMA, KeyInsightType, insightOutputParser } from "@/lib/prompt/insight.prompt";
+import { TIMESTAMP_PROMPT, TIMESTAMP_TOOL_SCHEMA, TimestampSummaryType } from "@/lib/prompt/timestamp.prompt";
+import { INSIGHT_PROMPT, INSIGHT_TOOL_SCHEMA, KeyInsightType } from "@/lib/prompt/insight.prompt";
 import { SUMMARY_PROMPT, SUMMARY_TOOL_SCHEMA, SummaryType, summaryOutputParser } from "@/lib/prompt/summary.prompt";
 import { outputParser } from "@/lib/prompt";
+
+// interface for configuration
+interface ConfigInterface {
+  tool: OpenAIClient.ChatCompletionTool;
+  prompt: ChatPromptTemplate;
+  parser_type?: string;
+  parser?: any;
+}
 
 const openAIApiKey = process.env.OPENAI_API_KEY; // api key for openai
 
@@ -54,13 +62,6 @@ export const addFormattedTranscript = async (transcript: TranscriptResponse[], v
   // add document to database
   await vector_store.addModels(await prisma.$transaction(documents.map(doc => prisma.transcripts.create({ data: doc }))));
 };
-
-interface ConfigInterface {
-  tool: OpenAIClient.ChatCompletionTool;
-  prompt: ChatPromptTemplate;
-  parser_type?: string;
-  parser?: any;
-}
 
 /** NOTE: the config file allows you to pass a custom outputParser else it will use the default outputParser.
  * Now depending on how your schema tool was structure, the config file also let's you pass a string that gets the exact data you want...

@@ -6,8 +6,9 @@ import { share_data } from "../lib/data";
 export type TimestampProps = (typeof share_data.timestamp_summary)[number];
 
 export const TimestampComp = ({ icon, tldr, start_time }: TimestampProps) => {
+  /** function to go to the timestamp on the youtube video */
   const handlePlayback = () => {
-    alert(start_time);
+    // alert(start_time);
   };
 
   return (

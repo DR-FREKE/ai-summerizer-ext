@@ -36,7 +36,7 @@ export const INSIGHT_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
           },
         },
       },
-      required: ["summaries"],
+      required: ["insights"],
     },
   },
 };

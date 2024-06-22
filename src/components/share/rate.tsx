@@ -6,6 +6,8 @@ import Rating from "@mui/material/Rating";
 import { useEffect, useState } from "react";
 import { Star1 } from "iconsax-react";
 import { FaStar } from "react-icons/fa6";
+import { usePathname } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 const StyleRating = styled(Rating)({
   "& .MuiRating-iconFilled": {
@@ -21,10 +23,11 @@ const StyleRating = styled(Rating)({
 
 export const RateArticle = ({ id, count, aggregate }: { id: number; count: number; aggregate?: number }) => {
   const [value, setValue] = useState<number | null>(aggregate!);
+  const pathname = usePathname();
 
-  const handleChange = (event: any, newValue: number | null) => {
+  const handleChange = async (event: any, newValue: number | null) => {
     setValue(newValue);
-    rateArticle(id, newValue!);
+    await rateArticle(id, newValue!, pathname);
   };
 
   return (

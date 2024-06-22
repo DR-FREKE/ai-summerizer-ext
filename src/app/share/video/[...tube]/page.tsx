@@ -1,5 +1,4 @@
 import { getVideoByName } from "@/actions/video_actions";
-import { AnimatedDiv } from "@/components/animated_div";
 import { AppButton } from "@/components/button";
 import { ShareHeader } from "@/components/share/header";
 import { RateArticle } from "@/components/share/rate";
@@ -7,23 +6,6 @@ import { ShareSummary } from "@/components/share/share.summary";
 import { SummerizeVidComp, YoutubeVideoComp } from "@/components/share/youtube";
 import prisma from "@/lib/db";
 import { FaRegFlag } from "react-icons/fa";
-
-/**const video_data = await prisma.video.findMany({
-    where: {
-      video_id: {
-        contains: "vid",
-      },
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-    select: {
-      // this is similar to something mongoose has where you can select the data you want to return
-      video_name: true,
-    },
-    skip: 10,
-    take: 10,
-  }); */
 
 type ParamsType = {
   params: {
@@ -33,10 +15,12 @@ type ParamsType = {
 
 const SharePage = async ({ params }: ParamsType) => {
   const [category, video_name] = params.tube;
+
   const article = await getVideoByName(video_name, category);
   const video_data = article?.video;
-  const rate_count = await prisma.ratings.count({ where: { article_id: article?.id } });
   const thumbnails = video_data?.video_thumbnail.map(thumbnail => thumbnail.thumbnail_url);
+
+  const rate_count = await prisma.ratings.count({ where: { article_id: article?.id } });
   const rate_agg = await prisma.ratings.aggregate({ where: { article_id: article?.id }, _avg: { rate: true } });
 
   if (params.tube.length !== 2) {

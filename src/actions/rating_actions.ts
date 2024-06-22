@@ -1,13 +1,19 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 /** function to get article by ID */
 export const getArticleById = async (id: number) => {
-  return true;
+  try {
+    const article = await prisma.article.findUnique({ where: { id } });
+    return article;
+  } catch (error) {
+    return error;
+  }
 };
 
-export const rateArticle = async (article_id: number, rate: number) => {
+export const rateArticle = async (article_id: number, rate: number, pathname: string) => {
   // check if article exist by calling getArticleById and passing it the params
   const article = await getArticleById(article_id);
 
@@ -20,6 +26,9 @@ export const rateArticle = async (article_id: number, rate: number) => {
         },
       });
       return add_rate;
-    } catch (error) {}
+    } catch (error) {
+      return { error };
+    }
   }
+  revalidatePath(pathname);
 };

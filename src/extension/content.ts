@@ -13,8 +13,11 @@
  * and no possibility of other type of videos
  */
 
+let iframeInserted = false; // Add a flag to track if the iframe has been inserted
+
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
+  // if the background does not return a positive result after the event was sent
   if (!res) {
     return;
   }
@@ -22,9 +25,10 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
   let iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
   const video_id = new URLSearchParams(window.location.search).get("v");
 
-  /**  wait for youtube page to load complete to have access
-   * to get the sideview*/
-  setTimeout(() => {
+  /** function to create and insert the extension to the left side of youtube */
+  const insertIframe = () => {
+    if (iframeInserted) return; // prevents multiple load of the iframe
+
     //use iframe to load ui
     const iframe = document.createElement("iframe");
     iframe.src = iframe_url; // url where the view should load from
@@ -48,6 +52,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
 
     if (yt_sidebar) {
       yt_sidebar.insertBefore(summerizer_div, yt_sidebar.firstChild);
+      iframeInserted = true;
     }
 
     /** get the user session...users most authenticate with google login before they can use the extension
@@ -68,13 +73,13 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
       }
 
       // if there's session, set token as a query string in the iframe src
-      iframe.src = `${iframe_url}/?token=${session.accessToken}`;
+      iframe.src = `${iframe_url}?token=${session.accessToken}`;
     });
 
     /** listen to event from the tabs from the iframe and send message back to the iframe */
     window.addEventListener("message", async event => {
       const { type, payload } = event.data;
-      const regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
+      const regex_match = /^(insights|timestamp_summary|comments|transcript)$/;
 
       if (regex_match.test(type)) {
         //send response back to nextjs
@@ -86,5 +91,23 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
     // window.addEventListener('message', async event => {
     //   chrome.runtime.sendMessage({createNewTab:true, url:""})
     // })
-  }, 3000);
+  };
+
+  // create a mutation observer to observe changes in the DOM
+  const observer = new MutationObserver(mutations => {
+    for (const mutation of mutations) {
+      // check if the mutation type is a childlist so we can put the iframe there
+      if (mutation.type == "childList") {
+        // get youtube sideview
+        const yt_sidebar = <HTMLElement>document.querySelector(`div[id="secondary"]`);
+        if (yt_sidebar && !iframeInserted) {
+          observer.disconnect(); // stop observing once the sidebar is loaded
+          insertIframe(); // insert the iframe when the sidebar is loaded
+        }
+      }
+    }
+  });
+
+  // start observing the body for childlist change
+  observer.observe(document.body, { childList: true, subtree: true });
 });

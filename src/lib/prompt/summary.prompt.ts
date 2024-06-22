@@ -27,7 +27,7 @@ export const SUMMARY_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
           },
         },
       },
-      required: ["summaries"],
+      required: ["summary_data"],
     },
   },
 };

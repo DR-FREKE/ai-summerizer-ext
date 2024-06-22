@@ -1,8 +1,12 @@
 import clsx from "clsx";
 import React, { ReactNode } from "react";
 
+export type DataProps = {
+  [x: string]: ReactNode | string;
+};
+
 type FooterSectionProp = {
-  sections: any[][];
+  sections: DataProps[][];
   renderItem: ({ item, index }: { item: any; index: number }) => ReactNode;
   className?: string;
   containerClassName?: string;

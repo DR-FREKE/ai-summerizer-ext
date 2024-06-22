@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, response) => {
 /** add listener to listen for if the user is signed in */
 chrome.runtime.onMessage.addListener((message, sender, response) => {
   if (message.type == "get_session") {
-    fetch("http://localhost:3001/api/auth/session", {
+    fetch("http://localhost:3000/api/auth/session", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

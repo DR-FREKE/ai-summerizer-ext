@@ -48,16 +48,20 @@ var _this = this;
  * NOTE: find out if the extension is supposed to work for only youtube video
  * and no possibility of other type of videos
  */
+var iframeInserted = false; // Add a flag to track if the iframe has been inserted
 // send message to background.ts
 chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
+    // if the background does not return a positive result after the event was sent
     if (!res) {
         return;
     }
     var iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
     var video_id = new URLSearchParams(window.location.search).get("v");
-    /**  wait for youtube page to load complete to have access
-     * to get the sideview*/
-    setTimeout(function () {
+    /** function to create and insert the extension to the left side of youtube */
+    var insertIframe = function () {
+        if (iframeInserted)
+            return; // prevents multiple load of the iframe
+        console.log("thhis is suppose to be the loaded iframe");
         //use iframe to load ui
         var iframe = document.createElement("iframe");
         iframe.src = iframe_url; // url where the view should load from
@@ -78,6 +82,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
         var yt_sidebar = document.querySelector("div[id=\"secondary\"]");
         if (yt_sidebar) {
             yt_sidebar.insertBefore(summerizer_div, yt_sidebar.firstChild);
+            iframeInserted = true;
         }
         /** get the user session...users most authenticate with google login before they can use the extension
          *
@@ -95,7 +100,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
                 // might send an event as well
             }
             // if there's session, set token as a query string in the iframe src
-            iframe.src = "".concat(iframe_url, "/?token=").concat(session.accessToken);
+            iframe.src = "".concat(iframe_url, "?token=").concat(session.accessToken);
         });
         /** listen to event from the tabs from the iframe and send message back to the iframe */
         window.addEventListener("message", function (event) { return __awaiter(_this, void 0, void 0, function () {
@@ -103,7 +108,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
             var _b;
             return __generator(this, function (_c) {
                 _a = event.data, type = _a.type, payload = _a.payload;
-                regex_match = /^(insight|timestamp_summary|comments|transcript)$/;
+                regex_match = /^(insights|timestamp_summary|comments|transcript)$/;
                 if (regex_match.test(type)) {
                     //send response back to nextjs
                     (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "RESPONSE_ACTION", payload: { url: "/transcript", video_id: video_id, type: type } }, "*");
@@ -115,5 +120,21 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
         // window.addEventListener('message', async event => {
         //   chrome.runtime.sendMessage({createNewTab:true, url:""})
         // })
-    }, 3000);
+    };
+    // create a mutation observer to observe changes in the DOM
+    var observer = new MutationObserver(function (mutations) {
+        for (var _i = 0, mutations_1 = mutations; _i < mutations_1.length; _i++) {
+            var mutation = mutations_1[_i];
+            if (mutation.type == "childList") {
+                // get youtube sideview
+                var yt_sidebar = document.querySelector("div[id=\"secondary\"]");
+                if (yt_sidebar && !iframeInserted) {
+                    observer.disconnect(); // stop observing once the sidebar is loaded
+                    insertIframe(); // insert the iframe when the sidebar is loaded
+                }
+            }
+        }
+    });
+    // start observing the body for childlist change
+    observer.observe(document.body, { childList: true, subtree: true });
 });

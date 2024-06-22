@@ -4,6 +4,7 @@ import { share_data } from "@/lib/data";
 import prisma from "@/lib/db";
 import { default_data_structure } from "@/lib/data";
 import { NextResponse } from "next/server";
+import { formatSlug } from "@/lib/utils";
 
 /** function to get a particular video using the ID */
 export const getVideoById = async (video_id: string, type: string) => {
@@ -123,7 +124,7 @@ export const addVideo = async (video_data: typeof share_data) => {
       prisma.video.create({
         data: {
           ...video_data,
-          slug: video_data.general_topic?.replace(/:/g, "").replace(/\s/g, "-").toLowerCase(),
+          slug: formatSlug(video_data.general_topic),
           category: video_data.category?.toLowerCase(),
           timestamp_summary: {
             create: timestamp_summary.map(ts => ({
