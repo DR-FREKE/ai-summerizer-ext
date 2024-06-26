@@ -1,11 +1,10 @@
 // TODO: use the transcript and the video ID to query chatgpt
 
 import { corsHeaders } from "@/lib/cors";
-import { getTranscript, getYouTubeData, getVideoTopComments } from "@/actions/youtube_actions";
-import { runGTP } from "@/actions/gpt_actions";
-import { addVideo, getVideoById } from "@/actions/video_actions";
+import { getVideoTopComments } from "@/actions/youtube_actions";
 import { NextRequest, NextResponse } from "next/server";
 import { default_data_structure } from "@/lib/data";
+import { fetchVideoData } from "@/service/transcript.service";
 
 export const maxDuration = 50; // This function can run for a maximum of 5 seconds
 export const dynamic = "force-dynamic";
@@ -30,29 +29,13 @@ export const GET = async (req: NextRequest) => {
       return NextResponse.json({ data: result, message: "data retrieved successfully" }, { headers: corsHeaders });
     }
 
-    // check if video_id exist in the database by calling the getVideoById function
-    const video = await getVideoById(video_id, type);
-    if (video) {
-      // if video exist, return the video but use the type passed from query query the object i.e if it insights or timestamp summary
-      return NextResponse.json({ data: video, message: "data retrieved successfully" }, { headers: corsHeaders });
+    //fetch video data and process it
+    result = await fetchVideoData(video_id, type);
+    if (result) {
+      return NextResponse.json({ data: result, message: "Data retrieved successfully" }, { headers: corsHeaders });
     }
 
-    // if video does not exist, query chatgpt by calling gpt action and passing the transcript...when the result returns, add the result to the db and cache
-    // NOTE: pass the transcript from the request body to the gpt action
-    const transcript = await getTranscript(video_id);
-
-    /**NOTE: cocurrently call youtube api with the video id and query chatgpt if the video doesn't exist */
-    const [data1, data2] = await Promise.all([getYouTubeData(video_id), runGTP(transcript)]);
-
-    /** if both data are available, transform data to save to Database */
-    if (data1 && data2) {
-      const video_data = { ...data1[0], ...data2 };
-      await addVideo(video_data); // add video data to databse
-
-      // change state of result
-      result = { ...default_data_structure, summary: video_data.summary, [type]: video_data[type as keyof typeof video] };
-    }
-    return NextResponse.json({ data: result, message: "data retrieved successfully" }, { headers: corsHeaders });
+    return NextResponse.json({ message: "data retrieved successfully" }, { status: 404, headers: corsHeaders });
   } catch (error: any) {
     console.error("error occured", error);
     return NextResponse.json({ message: error.message }, { status: 500 });

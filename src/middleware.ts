@@ -6,6 +6,7 @@ import { get_jwt_secret, verifyAuth } from "./lib/auth";
 declare module "next/server" {
   interface NextRequest {
     currentUser?: UserPayload;
+    isPartial: boolean;
   }
 }
 

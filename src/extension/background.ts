@@ -22,46 +22,50 @@ chrome.runtime.onMessage.addListener((message, sender, response) => {
 
     const is_type_youtube = is_youtube_type(current_tab.url!);
 
+    console.log(is_type_youtube);
+
     response(is_type_youtube);
   });
 
   return true;
 });
 
-/** listen for event coming from the iframe when the iframe successfully loads both on
- * the youtube page and other pages that an iframe will be used
- */
-chrome.runtime.onMessage.addListener(async (message, sender, response) => {
-  const type_arr = ["insight", "timestamp_summary", "comments", "transcript"];
-  if (type_arr.includes(message.type)) {
-    const { video_id } = message.payload;
-
-    response({ success: true, data: "" });
-  }
-});
+console.log("waa");
 
 /** add listener to listen for if the user is signed in */
 chrome.runtime.onMessage.addListener((message, sender, response) => {
   if (message.type == "get_session") {
-    fetch("http://localhost:3000/api/auth/session", {
+    console.log("message; ", message.type);
+
+    // Example usage
+    fetchSession().then(session => {
+      // Handle the session data
+      console.log("Fetched session:", session);
+      response(session);
+    });
+    return true;
+  }
+});
+
+async function fetchSession() {
+  try {
+    const response = await fetch("http://localhost:3000/api/auth/session", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Failed to retreive session data");
-        }
-      })
-      .then(session => {
-        response(session);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-    return true;
+    });
+
+    if (response.ok) {
+      console.log("response is: ", response);
+      const session = await response.json();
+      console.log("session...:", session);
+      return session;
+    } else {
+      throw new Error("Failed to retrieve session data");
+    }
+  } catch (error) {
+    console.error(error);
+    return null;
   }
-});
+}

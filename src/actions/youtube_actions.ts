@@ -54,6 +54,6 @@ export const getTranscript = async (video_id: string) => {
     const transcript = await YoutubeTranscript.fetchTranscript(video_id);
     return transcript;
   } catch (error) {
-    throw new Error("couldn't fetch transcript");
+    throw new Error("couldn't fetch transcript, please confirm the video ID is valid");
   }
 };

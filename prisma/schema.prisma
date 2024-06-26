@@ -5,17 +5,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql" // for prod, this will be postgres
-  url      = env("DATABASE_URL")
-}
+// datasource db {
+//   provider = "postgresql" // for prod, this will be postgres
+//   url      = env("DATABASE_URL")
+// }
 
 // production db connection
-// datasource db {
-//   provider  = "postgresql"
-//   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-// }
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
 
 model Article {
   id       Int       @id @default(autoincrement())
@@ -122,7 +122,7 @@ model Ratings {
 }
 
 model QuestionAnswer {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(cuid())
   question String
   answer   String
   video_id String
@@ -132,3 +132,12 @@ model QuestionAnswer {
 }
 
 // create model for subscription and plan
+model Subscription {
+  id              String   @id @default(cuid())
+  user_id         String
+  subs_start_date DateTime
+  subs_end_date   DateTime
+  status          String   @default("inactive")
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}

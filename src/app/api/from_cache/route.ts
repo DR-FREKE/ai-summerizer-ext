@@ -1,5 +1,5 @@
 /** this route is mainly use when user is not authenticated */
-import { getVideoById } from "@/actions/video_actions";
+import { getVideoById, getVideoFromCache } from "@/actions/video_actions";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -9,7 +9,8 @@ export const GET = async (req: NextRequest) => {
   let result;
 
   if (regex_match.test(type)) {
-    const video = await getVideoById(video_id, type);
+    /** TODO: get this from cache instead */
+    const video = await getVideoFromCache(video_id, type);
     result = video;
 
     console.log(result);

@@ -18,8 +18,11 @@ export const TIMESTAMP_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
             type: "object",
             properties: {
               key_ideas: {
-                type: "string",
-                description: "The timestamp summary",
+                type: "array",
+                items: {
+                  type: "string",
+                  description: "The timestamp summary",
+                },
               },
               icon: {
                 type: "string",

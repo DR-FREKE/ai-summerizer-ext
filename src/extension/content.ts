@@ -22,7 +22,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
     return;
   }
 
-  let iframe_url = "https://app-frontend-iframe-pj8b.vercel.app";
+  let iframe_url = "https://app-frontend-iframe.vercel.app";
   const video_id = new URLSearchParams(window.location.search).get("v");
 
   /** function to create and insert the extension to the left side of youtube */
@@ -42,7 +42,7 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
     // create a div to hold the iframe and add some styling
     const summerizer_div = document.createElement("div");
     summerizer_div.style.transition = "transform 0.3s ease 0s, opacity 0.3s ease 0s, height 0.5s ease 0s";
-    summerizer_div.style.height = "auto";
+    // summerizer_div.style.height = "auto";
     summerizer_div.style.marginBottom = "8px";
     summerizer_div.style.order = "-1";
     summerizer_div.appendChild(iframe);
@@ -64,17 +64,22 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
      *
      *
      */
-    chrome.runtime.sendMessage({ type: "get_session" }, session => {
-      if (!session || session == undefined || session.accessToken == undefined) {
-        // set iframe url to include unauthorized
-        iframe.src = iframe_url + "/unauthorized";
 
-        // might send an event as well
-      }
+    setTimeout(() => {
+      chrome.runtime.sendMessage({ type: "get_session" }, session => {
+        console.log("gotten session", session);
+        if (!session || session == undefined || session.accessToken == undefined) {
+          // set iframe url to include unauthorized
+          iframe.src = iframe_url + "/unauthorized";
 
-      // if there's session, set token as a query string in the iframe src
-      iframe.src = `${iframe_url}?token=${session.accessToken}`;
-    });
+          // might send an event as well
+          return;
+        }
+
+        // if there's session, set token as a query string in the iframe src
+        iframe.src = `${iframe_url}/?token=${session.accessToken}`;
+      });
+    }, 3000);
 
     /** listen to event from the tabs from the iframe and send message back to the iframe */
     window.addEventListener("message", async event => {
@@ -83,7 +88,20 @@ chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
 
       if (regex_match.test(type)) {
         //send response back to nextjs
-        iframe.contentWindow?.postMessage({ type: "RESPONSE_ACTION", payload: { url: "/transcript", video_id, type } }, "*");
+        iframe.contentWindow?.postMessage({ type: "TAB_RESPONSE", payload: { url: "/transcript", video_id, type } }, "*");
+      }
+    });
+
+    /** listen for dropdown event to adjust the height of the iframe */
+    window.addEventListener("message", async event => {
+      const { type, height } = event.data;
+
+      if (type == "HEIGHT_OPEN" && height) {
+        iframe.style.height = `${height}px`;
+      }
+
+      if (type === "HEIGHT_CLOSED") {
+        iframe.style.height = `auto`;
       }
     });
 

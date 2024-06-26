@@ -5,11 +5,70 @@ import prisma from "@/lib/db";
 import { default_data_structure } from "@/lib/data";
 import { NextResponse } from "next/server";
 import { formatSlug } from "@/lib/utils";
+import { redis } from "@/lib/redis";
+import { addFormattedTranscript } from "./gpt_actions";
+
+type TimestampPayload = {
+  icon: string;
+  key_ideas: {
+    idea: string;
+  }[];
+  start_time: number;
+  tldr: string;
+};
+
+type InsightPayload = {
+  name: string;
+  points: {
+    icon: string;
+    title: string;
+  }[];
+};
+
+type PayloadType = {
+  timestamp_summary: TimestampPayload[];
+  insights: InsightPayload;
+};
+
+/** function to get video data from the cache rather than the DB...this helps request time */
+export const getVideoFromCache = async (video_id: string, type: string) => {
+  // query cache, if cache data exist, return that else run a prisma query
+  const cache_value = await redis.get(video_id);
+  const cache_data = JSON.parse(cache_value || "{}");
+
+  if (cache_value && cache_data[type]) {
+    return cache_data[type];
+  }
+};
+
+/** transform the look of key ideas */
+const timestamp_processor = (summary: TimestampPayload) => ({
+  ...summary,
+  key_ideas: summary.key_ideas.map(idea => idea.idea),
+});
+
+/** transform how timestamp summary and insights are supposed to be sent to the user */
+const processData = (video: any): PayloadType => ({
+  timestamp_summary: video.timestamp_summary.map(timestamp_processor),
+  insights: video.insights[0],
+});
+
+// function to store video data to the redis store
+const storeCacheData = async (video_id: string, type: string, data: unknown) => {
+  /** store result in cache */
+  const cache_structure = { [type]: data };
+  await redis.set(video_id, JSON.stringify(cache_structure));
+};
 
 /** function to get a particular video using the ID */
-export const getVideoById = async (video_id: string, type: string) => {
+export const getVideoById = async (video_id: string, type: string, language?: string) => {
   let result;
+
   try {
+    // check cache
+    const cache_data = await getVideoFromCache(video_id, type);
+    if (cache_data) return cache_data;
+
     const video = await prisma.video.findUnique({
       where: {
         video_id,
@@ -20,22 +79,13 @@ export const getVideoById = async (video_id: string, type: string) => {
             icon: true,
             tldr: true,
             start_time: true,
-            key_ideas: {
-              select: {
-                idea: true,
-              },
-            },
+            key_ideas: { select: { idea: true } },
           },
         },
         insights: {
           select: {
             name: true,
-            points: {
-              select: {
-                icon: true,
-                title: true,
-              },
-            },
+            points: { select: { icon: true, title: true } },
           },
           take: 1,
         },
@@ -45,27 +95,22 @@ export const getVideoById = async (video_id: string, type: string) => {
 
     if (!video) {
       // maybe return an error
-      result = null;
-      return;
+      return null;
     }
 
-    /** transform the look of key ideas */
-    const timestamp_processor = () => {
-      return video.timestamp_summary.map(summary => ({
-        ...summary,
-        key_ideas: summary.key_ideas.map(idea => idea.idea),
-      }));
-    };
+    const type_data = processData(video);
 
     // else transform data using the type passed
     result = {
       ...default_data_structure,
       summary: video.summary,
-      [type]: type == "timestamp_summary" ? timestamp_processor() : video[type as keyof typeof video],
+      [type]: type_data[type as keyof PayloadType] || video[type as keyof typeof video],
     };
 
-    /** store result in cache */
+    // call function to store data to cache
+    await storeCacheData(video_id, type, result);
 
+    // return result to users
     return result;
   } catch (error) {
     console.error("Failed to retrieve video", error);
@@ -172,7 +217,7 @@ export const addVideo = async (video_data: typeof share_data) => {
     if (transaction) {
       await prisma.$executeRaw`ROLLBACK;`;
     }
-    throw new Error(error.message);
+    throw new Error("error occured on the server");
   } finally {
     // close transaction
     await prisma.$disconnect();

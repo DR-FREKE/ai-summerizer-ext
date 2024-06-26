@@ -25,6 +25,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "iconsax-react": "^0.0.8",
+    "ioredis": "^5.4.1",
     "jose": "^4.15.5",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.2.5",

@@ -38,7 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 // import axios from "axios";
 // listen to message from content.ts to check if current page is a youtube page
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
@@ -53,47 +52,55 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
             return url.includes("youtube.com") && url.includes("/watch");
         };
         var is_type_youtube = is_youtube_type(current_tab.url);
+        console.log(is_type_youtube);
         response(is_type_youtube);
     });
     return true;
 });
-/** listen for event coming from the iframe when the iframe successfully loads both on
- * the youtube page and other pages that an iframe will be used
- */
-chrome.runtime.onMessage.addListener(function (message, sender, response) { return __awaiter(_this, void 0, void 0, function () {
-    var type_arr, video_id;
-    return __generator(this, function (_a) {
-        type_arr = ["insight", "timestamp_summary", "comments", "transcript"];
-        if (type_arr.includes(message.type)) {
-            video_id = message.payload.video_id;
-            response({ success: true, data: "" });
-        }
-        return [2 /*return*/];
-    });
-}); });
+console.log("waa");
 /** add listener to listen for if the user is signed in */
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.type == "get_session") {
-        fetch("http://localhost:3000/api/auth/session", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then(function (response) {
-            if (response.ok) {
-                return response.json();
-            }
-            else {
-                throw new Error("Failed to retreive session data");
-            }
-        })
-            .then(function (session) {
+        console.log("message; ", message.type);
+        // Example usage
+        fetchSession().then(function (session) {
+            // Handle the session data
+            console.log("Fetched session:", session);
             response(session);
-        })
-            .catch(function (error) {
-            console.error(error);
         });
         return true;
     }
 });
+function fetchSession() {
+    return __awaiter(this, void 0, void 0, function () {
+        var response, session, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 5, , 6]);
+                    return [4 /*yield*/, fetch("http://localhost:3000/api/auth/session", {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        })];
+                case 1:
+                    response = _a.sent();
+                    if (!response.ok) return [3 /*break*/, 3];
+                    console.log("response is: ", response);
+                    return [4 /*yield*/, response.json()];
+                case 2:
+                    session = _a.sent();
+                    console.log("session...:", session);
+                    return [2 /*return*/, session];
+                case 3: throw new Error("Failed to retrieve session data");
+                case 4: return [3 /*break*/, 6];
+                case 5:
+                    error_1 = _a.sent();
+                    console.error(error_1);
+                    return [2 /*return*/, null];
+                case 6: return [2 /*return*/];
+            }
+        });
+    });
+}
