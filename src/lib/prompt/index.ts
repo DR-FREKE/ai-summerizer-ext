@@ -4,9 +4,9 @@ export * from "./timestamp.prompt";
 
 /** use the structure you defined earlier to generate a fine output */
 export const outputParser = (type?: string) => (output: BaseMessageChunk) => {
-  const toolCalls = output.additional_kwargs.tool_calls;
+  const toolCalls = output.additional_kwargs.tool_calls || [];
   if (!toolCalls || toolCalls.length == 0) {
-    throw new Error("No tool calls");
+    throw new Error(`error occured getting ${type}`);
   }
 
   const summaries = toolCalls

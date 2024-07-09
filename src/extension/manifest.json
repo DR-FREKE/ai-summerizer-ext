@@ -3,7 +3,7 @@
   "description": "analyze and summerize youtube videos on the youtube page",
   "version": "1.0.0",
   "manifest_version": 3,
-  "permissions": ["activeTab", "tabs", "scripting", "cookies", "storage"],
+  "permissions": ["activeTab", "tabs", "scripting", "cookies", "storage", "clipboardRead", "clipboardWrite"],
   "background": {
     "service_worker": "background.js"
   },
@@ -15,5 +15,5 @@
     }
   ],
   "action": {},
-  "host_permissions": ["http://localhost:3000/*", "https://*/*", "http://*/"]
+  "host_permissions": ["http://localhost:3000/*", "http://localhost:3001/*", "https://*/*", "http://*/"]
 }

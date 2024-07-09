@@ -13,12 +13,17 @@ export const GET = async (req: NextRequest, context: any) => {
     params: { video_id },
   } = context;
 
-  const video_data = await prisma.video.findUnique({ where: { video_id }, select: { slug: true, category: true } });
-  if (video_data) {
-    const { slug, category } = video_data;
-    const url = `${SHARE_URL}/share/video/${category}/${slug}`;
+  try {
+    const video_data = await prisma.video.findUnique({ where: { video_id }, select: { slug: true, category: true } });
+    if (video_data) {
+      const { slug, category } = video_data;
+      const url = `${SHARE_URL}/share/video/${category}/${slug}`; // come back to get the actual pathname
 
-    return NextResponse.json({ url }, { headers: corsHeaders });
+      return NextResponse.json({ url }, { headers: corsHeaders });
+    }
+    throw new Error("sorry, couldn't get this video");
+  } catch (error: any) {
+    console.error("error occured", error);
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
-  throw new Error("sorry, couldn't get this video");
 };

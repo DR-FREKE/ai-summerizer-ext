@@ -11,6 +11,8 @@ export const fetchVideoData = async (video_id: string, type: string, language?: 
     return video;
   }
 
+  console.log("Im going to run gpt");
+
   // if video does not exist, query chatgpt by calling gpt action and passing the transcript...when the result returns, add the result to the db and cache
   // NOTE: pass the transcript from the request body to the gpt action
   const transcript = await getTranscript(video_id);
@@ -29,6 +31,4 @@ export const fetchVideoData = async (video_id: string, type: string, language?: 
 
     return result;
   }
-
-  return null;
 };

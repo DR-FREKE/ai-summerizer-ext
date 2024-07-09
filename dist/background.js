@@ -47,23 +47,26 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     }
     // continue
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (tabs.length === 0) {
+            // Handle case where no active tab is found
+            response(false);
+            return;
+        }
         var current_tab = tabs[0];
         var is_youtube_type = function (url) {
             return url.includes("youtube.com") && url.includes("/watch");
         };
         var is_type_youtube = is_youtube_type(current_tab.url);
-        console.log(is_type_youtube);
+        console.log("is youtube", is_type_youtube);
         response(is_type_youtube);
     });
     return true;
 });
-console.log("waa");
 /** add listener to listen for if the user is signed in */
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.type == "get_session") {
-        console.log("message; ", message.type);
         // Example usage
-        fetchSession().then(function (session) {
+        fetchData("http://localhost:3000/api/auth/session").then(function (session) {
             // Handle the session data
             console.log("Fetched session:", session);
             response(session);
@@ -71,14 +74,33 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
         return true;
     }
 });
-function fetchSession() {
+/** add listener to validate if current video playing is in our DB so to enable auto summary */
+chrome.runtime.onMessage.addListener(function (message, sender, response) {
+    // listen for message "video_exist"
+    if (message.type == "video_exist") {
+        // make request to check if that video exists in out db
+        fetchData("http://localhost:3000/api/video/".concat(message.payload)).then(function (video_info) {
+            console.log("fetched data", video_info);
+            response(video_info);
+        });
+        return true;
+    }
+});
+chrome.runtime.onMessage.addListener(function (message, sender, response) {
+    var _a;
+    if (message.createNewTab && ((_a = sender.tab) === null || _a === void 0 ? void 0 : _a.id)) {
+        alert("wassa");
+        chrome.tabs.update(sender.tab.id, { url: message.url });
+    }
+});
+function fetchData(url) {
     return __awaiter(this, void 0, void 0, function () {
-        var response, session, error_1;
+        var response, data, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 6]);
-                    return [4 /*yield*/, fetch("http://localhost:3000/api/auth/session", {
+                    _a.trys.push([0, 4, , 5]);
+                    return [4 /*yield*/, fetch(url, {
                             method: "GET",
                             headers: {
                                 "Content-Type": "application/json",
@@ -87,19 +109,16 @@ function fetchSession() {
                 case 1:
                     response = _a.sent();
                     if (!response.ok) return [3 /*break*/, 3];
-                    console.log("response is: ", response);
                     return [4 /*yield*/, response.json()];
                 case 2:
-                    session = _a.sent();
-                    console.log("session...:", session);
-                    return [2 /*return*/, session];
-                case 3: throw new Error("Failed to retrieve session data");
-                case 4: return [3 /*break*/, 6];
-                case 5:
+                    data = _a.sent();
+                    return [2 /*return*/, data];
+                case 3: return [3 /*break*/, 5];
+                case 4:
                     error_1 = _a.sent();
-                    console.error(error_1);
+                    console.error("the error", error_1);
                     return [2 /*return*/, null];
-                case 6: return [2 /*return*/];
+                case 5: return [2 /*return*/];
             }
         });
     });

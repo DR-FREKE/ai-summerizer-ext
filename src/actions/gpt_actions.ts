@@ -108,6 +108,7 @@ export const runGTP = async (transcript: TranscriptResponse[]) => {
       queryGPT<SummaryType>(transcript, summary_config),
     ]);
 
+    // console.log("the data gotten", { ...summary[0], timestamp_summary, insights: insight[0] });
     return { ...summary[0], timestamp_summary, insights: insight[0] };
   }
 

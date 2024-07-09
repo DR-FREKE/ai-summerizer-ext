@@ -43,5 +43,5 @@ export const middleware = async (req: NextRequest) => {
 };
 
 export const config = {
-  matcher: ["/api/from_cache"],
+  matcher: ["/api/landing"],
 };

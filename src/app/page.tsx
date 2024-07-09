@@ -18,10 +18,10 @@ export default function Home() {
 
   const handleLogout = async () => {
     // Call the logout API
-    await fetch("/api/auth/logout", { method: "POST" });
+    // await fetch("/api/auth/logout", { method: "POST" });
 
     // Sign out client-side
-    signOut({ callbackUrl: "/" });
+    signOut();
   };
 
   return (

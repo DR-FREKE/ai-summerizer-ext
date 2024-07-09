@@ -91,7 +91,7 @@ export type KeyInsightType = {
 
 /** use the structure you defined earlier to generate a fine output */
 export const insightOutputParser = (output: BaseMessageChunk): Array<KeyInsightType> => {
-  const toolCalls = output.additional_kwargs.tool_calls;
+  const toolCalls = output.additional_kwargs.tool_calls || [];
   if (!toolCalls || toolCalls.length == 0) {
     throw new Error("No tool calls");
   }

@@ -26,6 +26,7 @@ export const TIMESTAMP_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
               },
               icon: {
                 type: "string",
+                description: "the emoji for each timestamped summary",
               },
               tldr: {
                 type: "string",
@@ -48,7 +49,7 @@ export const TIMESTAMP_PROMPT = ChatPromptTemplate.fromMessages([
     "ai",
     `Generate timestamp summary of the following youtube video transcript.
     Identify the category this transcript can belong to.
-    The goal is to be able to generate a well detailed timestamp summary of the transcript 
+    The goal is to be able to generate a well detailed timestamped summary of the transcript 
     after reading every lines of the transcript also adding the time offset of the generated summary.
     Follow the format and style demonstrated below:
 
@@ -67,7 +68,7 @@ export const TIMESTAMP_PROMPT = ChatPromptTemplate.fromMessages([
 
     Rules:
     - Highlight key ideas and include specific quotes in your detailed summary.
-    - Respond with as many timestamp summary as it might take to cover the entire transcript, going through every line of the transcript.
+    - Respond with as many timestamp summary as it might take to cover the entire transcript, going through every line of the transcript and use the duration from the object of the transcript.
     - Go into as much detail as you can, while keeping each timestamp summary on a very specific part of the transcript.
     - For every new paragraph of a new summary, always include the time offset of your summary.
     - For every new paragraph of a new summary, always include the right emoji for your summary.
@@ -76,8 +77,8 @@ export const TIMESTAMP_PROMPT = ChatPromptTemplate.fromMessages([
     - DO NOT respond with timestamp summary like: "The host introduces XYZ." or "The video discusses" or "The video opens by XYZ", instead explain XYZ and how it works.
     - DO NOT make it "what they were talking about" instead fine grain it.
 
-    Respond with a JSON array with four keys: "key_ideas", "tldr", "start_time" and "icon".
-    "key_ideas" will be an array of string that contains different key ideas you could get from the transcript, "tldr" will be the specific timestamp summary, "start_time" will be the offset time of your generated summary and "icon" will be your generated emoji or set it to an empty string.
+    Respond with a JSON array with only and always these four keys: "key_ideas", "tldr", "start_time" and "icon".
+    "key_ideas" will be an array of string that contains different key ideas you could get from the transcript, "tldr" will be the specific timestamp summary, "start_time" will be the offset time of your generated summary, and "icon" will be your generated emoji.
     Take a deep breath, and work your way through the transcript step by step.`,
   ],
   ["human", "Transcript: {transcript}"],

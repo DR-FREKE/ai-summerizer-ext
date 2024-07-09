@@ -142,6 +142,6 @@ export const default_data_structure = {
   insights: null,
   isPartial: false,
   timestamp_summary: null,
-  transcripts: null,
+  transcript: null,
   summary: null,
 };

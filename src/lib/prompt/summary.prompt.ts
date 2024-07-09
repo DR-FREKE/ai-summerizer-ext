@@ -47,7 +47,7 @@ export const SUMMARY_PROMPT = ChatPromptTemplate.fromMessages([
     - Generate a typical category with a single word this transcript you've summerized can belong to.
     - Include a general but befitting name for your summerized transcript or the video.
     - The generated name should be SEO compatible, allowing me get the right result when I search for that name on youtube.
-    - DO NOT respond with a summary like: "The transcript discusses XYZ." or "The presenter XYZ", instead explain what XYZ is and how it works.
+    - DO NOT respond with a summary like: "The transcript discusses XYZ." or "The video discusses" or "The video opens by XYZ", instead explain what XYZ is and how it works.
     
     Respond with a JSON object with three keys: "summary", "general_topic" and "category".
     "summary" will be the specific summary you generated, general_topic will be the generated name and category will be the type of category this transcript falls into.
@@ -60,6 +60,13 @@ export const SUMMARY_PROMPT = ChatPromptTemplate.fromMessages([
 
     generated name:
     Revolutionary GPU Programming Language: Bend
+
+    generated summary:
+    "Bend offers a revolutionary language for 
+    GPU programming that promises to run 
+    everything in parallel without the need 
+    for complex knowledge of Cuda, blocks, 
+    locks, mutexes, or regex's".
     `,
   ],
   ["human", "Transcript: {transcript}"],

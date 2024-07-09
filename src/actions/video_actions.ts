@@ -36,6 +36,8 @@ export const getVideoFromCache = async (video_id: string, type: string) => {
   const cache_value = await redis.get(video_id);
   const cache_data = JSON.parse(cache_value || "{}");
 
+  console.log("queried  from cache");
+
   if (cache_value && cache_data[type]) {
     return cache_data[type];
   }
@@ -55,8 +57,12 @@ const processData = (video: any): PayloadType => ({
 
 // function to store video data to the redis store
 const storeCacheData = async (video_id: string, type: string, data: unknown) => {
+  //retrieve data from cache using video id
+  const cache_data = await redis.get(video_id);
+  const parsed_cache_data = JSON.parse(cache_data || "{}");
+
   /** store result in cache */
-  const cache_structure = { [type]: data };
+  const cache_structure = { ...parsed_cache_data, [type]: data }; // openup previous data if any and add the new data to update the cache
   await redis.set(video_id, JSON.stringify(cache_structure));
 };
 

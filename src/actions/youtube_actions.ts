@@ -48,11 +48,24 @@ export const getYouTubeData = async (video_id: string) => {
   }));
 };
 
+const decodeText = (text: string) => {
+  const entities = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "#39;": "'",
+    // Add more if needed
+  };
+
+  return text.replace(/&amp;#39;/g, "'");
+};
+
 export const getTranscript = async (video_id: string) => {
   try {
     // get the video transcript
-    const transcript = await YoutubeTranscript.fetchTranscript(video_id);
-    return transcript;
+    const transcripts = await YoutubeTranscript.fetchTranscript(video_id);
+    return transcripts.map(transcript => ({ ...transcript, text: decodeText(transcript.text) }));
   } catch (error) {
     throw new Error("couldn't fetch transcript, please confirm the video ID is valid");
   }

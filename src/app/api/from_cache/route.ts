@@ -1,6 +1,11 @@
 /** this route is mainly use when user is not authenticated */
 import { getVideoById, getVideoFromCache } from "@/actions/video_actions";
 import { NextRequest, NextResponse } from "next/server";
+import { corsHeaders } from "@/lib/cors";
+
+export const OPTIONS = async (req: NextRequest) => {
+  return NextResponse.json({}, { headers: corsHeaders });
+};
 
 export const GET = async (req: NextRequest) => {
   // get type and video_id from request body
@@ -16,5 +21,5 @@ export const GET = async (req: NextRequest) => {
     console.log(result);
   }
 
-  return NextResponse.json({ data: result });
+  return NextResponse.json({ data: result }, { headers: corsHeaders });
 };

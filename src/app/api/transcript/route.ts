@@ -32,10 +32,10 @@ export const GET = async (req: NextRequest) => {
     //fetch video data and process it
     result = await fetchVideoData(video_id, type);
     if (result) {
-      return NextResponse.json({ data: result, message: "Data retrieved successfully" }, { headers: corsHeaders });
+      return NextResponse.json({ data: result, message: "data retrieved successfully" }, { headers: corsHeaders });
     }
 
-    return NextResponse.json({ message: "data retrieved successfully" }, { status: 404, headers: corsHeaders });
+    return NextResponse.json({ message: "data not found" }, { status: 404, headers: corsHeaders });
   } catch (error: any) {
     console.error("error occured", error);
     return NextResponse.json({ message: error.message }, { status: 500 });

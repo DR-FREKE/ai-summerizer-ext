@@ -41,6 +41,7 @@ export const QA_TOOL_SCHEMA: OpenAIClient.ChatCompletionTool = {
           },
         },
       },
+      required: ["summary_data"],
     },
   },
 };
