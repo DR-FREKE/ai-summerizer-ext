@@ -100,8 +100,7 @@ var insertIframe = function () {
      */
     chrome.runtime.sendMessage({ type: "get_session" }, function (session) {
         console.log("gotten sessions", session);
-        if (session == null || session.accessToken == null || session == undefined) {
-            console.log("session token is: ", session.accessToken);
+        if (!session) {
             // set iframe url to include unauthorized
             iframe.src = iframe_url + "/unauthorized";
             // might send an event as well
@@ -188,7 +187,6 @@ var removeIframe = function () {
 };
 var checkAndInject = function () {
     chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
-        console.log("youtubeOrNot response:", res);
         if (!res) {
             removeIframe();
             return;

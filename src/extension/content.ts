@@ -30,7 +30,7 @@ const insertIframe = () => {
 
   console.log("Creating iframe...", video_id);
 
-  const iframe_url = "https://app-frontend-iframe.vercel.app";
+  let iframe_url = "https://app-frontend-iframe.vercel.app";
 
   // Create iframe element
   iframe = document.createElement("iframe");
@@ -74,15 +74,12 @@ const insertIframe = () => {
 
   chrome.runtime.sendMessage({ type: "get_session" }, session => {
     console.log("gotten sessions", session);
-    if (session == null || session.accessToken == null || session == undefined) {
-      console.log("session token is: ", session.accessToken);
+    if (!session) {
       // set iframe url to include unauthorized
       iframe.src = iframe_url + "/unauthorized";
-
       // might send an event as well
       return;
     }
-
     // if there's session, set token as a query string in the iframe src
     iframe.src = `${iframe_url}/?token=${session.accessToken}`;
   });
@@ -174,8 +171,6 @@ const removeIframe = () => {
 
 const checkAndInject = () => {
   chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
-    console.log("youtubeOrNot response:", res);
-
     if (!res) {
       removeIframe();
       return;
