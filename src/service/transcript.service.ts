@@ -21,8 +21,9 @@ export const fetchVideoData = async (video_id: string, type: string, language?: 
   /** if both data are available, transform data to save to Database */
   if (youtube_data && gpt_data) {
     const video_data = { ...youtube_data[0], ...gpt_data };
-    await addVideo(video_data); // add video data to databse
-    await addFormattedTranscript(transcript, video_id); // add a formatted transcript
+    console.log(video_data);
+    // await addVideo(video_data); // add video data to databse
+    // await addFormattedTranscript(transcript, video_id); // add a formatted transcript
 
     // change state of result
     const result = { ...default_data_structure, summary: video_data.summary, [type]: video_data[type as keyof typeof video] };
