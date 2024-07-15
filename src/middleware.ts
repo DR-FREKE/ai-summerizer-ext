@@ -33,10 +33,7 @@ export const middleware = async (req: NextRequest) => {
 
   try {
     const user_data = await verifyAuth(token, get_jwt_secret());
-    console.log(user_data);
   } catch (error) {
-    console.log("my error", error);
-
     return NextResponse.json({ message: "Error Unauthorized Request" }, { status: 401 });
   }
   return NextResponse.next();

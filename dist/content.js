@@ -56,9 +56,11 @@ var getCurrentVideoId = function () { return new URLSearchParams(window.location
 var insertIframe = function () {
     console.log("YouTube video page detected!!!");
     var video_id = getCurrentVideoId();
-    if (!video_id)
+    if (!video_id) {
+        console.log("No video ID found, aborting iframe insertion.");
         return;
-    console.log("Creating iframe...");
+    }
+    console.log("Creating iframe...", video_id);
     var iframe_url = "https://app-frontend-iframe.vercel.app";
     // Create iframe element
     iframe = document.createElement("iframe");
@@ -84,6 +86,9 @@ var insertIframe = function () {
         yt_sidebar.insertBefore(summerizer_div, yt_sidebar.firstChild);
         console.log("Iframe inserted for video ID:", video_id);
     }
+    else {
+        console.log("Failed to find YouTube sidebar or iframe already exists.");
+    }
     /** get the user session...users most authenticate with google login before they can use the extension
      *
      *
@@ -94,8 +99,9 @@ var insertIframe = function () {
      *
      */
     chrome.runtime.sendMessage({ type: "get_session" }, function (session) {
-        console.log("gotten session", session);
+        console.log("gotten sessions", session);
         if (session == null || session.accessToken == null || session == undefined) {
+            console.log("session token is: ", session.accessToken);
             // set iframe url to include unauthorized
             iframe.src = iframe_url + "/unauthorized";
             // might send an event as well
@@ -147,25 +153,27 @@ var insertIframe = function () {
         });
         window.addEventListener("message", function (event) {
             var _a = event.data, type = _a.type, height = _a.height;
-            // const height_options = {
-            //   HEIGHT_OPEN: `${height}px`,
-            //   OPEN_CONTENT_BODY: `${height}px`,
-            //   CLOSE_CONTENT_BODY: `${height}px`,
-            //   HEIGHT_CLOSED: `${height}px`,
-            // };
-            // iframe.style.height = height_options[type as keyof typeof height_options]
-            if (type == "HEIGHT_OPEN" && height) {
-                iframe.style.height = "".concat(height, "px");
-            }
-            if (type == "OPEN_CONTENT_BODY" && height) {
-                iframe.style.height = "".concat(height, "px");
-            }
-            if (type === "HEIGHT_CLOSED") {
-                iframe.style.height = "auto";
-            }
-            if (type === "CLOSE_CONTENT_BODY") {
-                iframe.style.height = "auto";
-            }
+            var height_options = {
+                HEIGHT_OPEN: "".concat(height, "px"),
+                OPEN_CONTENT_BODY: "".concat(height, "px"),
+                CLOSE_CONTENT_BODY: "".concat(height, "px"),
+                HEIGHT_CLOSED: "".concat(height, "px"),
+                OPEN_LOGIN_BODY: "".concat(height, "px"),
+            };
+            console.log("this is the type and the height", type, height);
+            iframe.style.height = height_options[type];
+            // if (type == "HEIGHT_OPEN" && height) {
+            //   iframe.style.height = `${height}px`;
+            // }
+            // if (type == "OPEN_CONTENT_BODY" && height) {
+            //   iframe.style.height = `${height}px`;
+            // }
+            // if (type === "HEIGHT_CLOSED") {
+            //   iframe.style.height = `auto`;
+            // }
+            // if (type === "CLOSE_CONTENT_BODY") {
+            //   iframe.style.height = "auto";
+            // }
         });
         listenersAdded = true;
     }
@@ -180,15 +188,17 @@ var removeIframe = function () {
 };
 var checkAndInject = function () {
     chrome.runtime.sendMessage({ type: "youtubeOrNot" }, function (res) {
+        console.log("youtubeOrNot response:", res);
         if (!res) {
             removeIframe();
             return;
         }
         var video_id = getCurrentVideoId();
+        console.log("Current video ID:", video_id, "Previous video ID:", currentVideoId);
         if (video_id && video_id !== currentVideoId) {
             currentVideoId = video_id;
             removeIframe();
-            insertIframe();
+            setTimeout(insertIframe, 7000);
         }
         else if (!video_id && iframe) {
             removeIframe();

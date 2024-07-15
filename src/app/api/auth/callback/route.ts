@@ -18,8 +18,6 @@ export const GET = async (req: NextRequest) => {
       redirect_url = state.redirect || process.env.APP_URL;
     }
 
-    console.log("state params: ", state_param);
-
     const { tokens } = await client.getToken(code);
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token!,
@@ -30,7 +28,8 @@ export const GET = async (req: NextRequest) => {
     const token = await signJWT({ name: payload?.name, email: payload?.email }, process.env.JWT_KEY!, { expiresIn: "1d" });
 
     const response = NextResponse.redirect(`${redirect_url}/`);
-    response.cookies.set("token", token, { httpOnly: true, path: "/" });
+    response.cookies.set("token", token, { httpOnly: true, path: "/", sameSite: "lax", secure: true });
+
     return response;
   } catch (error) {
     console.error("Error during authentication callback", error);

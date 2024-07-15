@@ -11,13 +11,13 @@ export const GET = async (req: NextRequest) => {
   const token = req.cookies.get("token")?.value;
 
   if (!token) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false, accessToken: null }, { status: 401 });
   }
 
   try {
     const user = await verifyAuth(token, process.env.JWT_KEY!);
     return NextResponse.json({ authenticated: true, user, accessToken: token }, { status: 200 });
   } catch (err) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false, accessToken: null }, { status: 401 });
   }
 };

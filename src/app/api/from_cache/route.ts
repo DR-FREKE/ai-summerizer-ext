@@ -15,7 +15,7 @@ export const GET = async (req: NextRequest) => {
 
   if (regex_match.test(type)) {
     /** TODO: get this from cache instead */
-    const video = await getVideoFromCache(video_id, type);
+    const video = await getVideoFromCache(video_id, type, 4);
     result = video;
 
     console.log(result);

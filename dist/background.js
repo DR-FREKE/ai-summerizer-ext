@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.type == "get_session") {
         // Example usage
-        fetchData("http://localhost:3000/api/auth/session").then(function (session) {
+        fetchData("https://summerizer-ext.vercel.app/api/auth/session").then(function (session) {
             // Handle the session data
             console.log("Fetched session:", session);
             response(session);
@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
     // listen for message "video_exist"
     if (message.type == "video_exist") {
         // make request to check if that video exists in out db
-        fetchData("http://localhost:3000/api/video/".concat(message.payload)).then(function (video_info) {
+        fetchData("https://summerizer-ext.vercel.app/api/video/".concat(message.payload)).then(function (video_info) {
             console.log("fetched data", video_info);
             response(video_info);
         });

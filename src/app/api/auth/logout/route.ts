@@ -7,7 +7,7 @@ export const OPTIONS = async (req: NextRequest) => {
 
 export const POST = async (req: NextRequest) => {
   const response = NextResponse.json({ message: "Access Token reverted" }, { headers: corsHeaders });
-  response.cookies.set("token", "", { httpOnly: true, path: "/", expires: new Date(0) }); // Clear the token cookie
+  response.cookies.set("token", "", { httpOnly: true, path: "/", expires: Date.now(), sameSite: "none", secure: true }); // Clear the token cookie
 
   return response;
 };

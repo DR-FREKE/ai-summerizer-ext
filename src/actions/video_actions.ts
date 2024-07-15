@@ -31,16 +31,26 @@ type PayloadType = {
 };
 
 /** function to get video data from the cache rather than the DB...this helps request time */
-export const getVideoFromCache = async (video_id: string, type: string) => {
+export const getVideoFromCache = async (video_id: string, type: string, limit?: number) => {
   // query cache, if cache data exist, return that else run a prisma query
   const cache_value = await redis.get(video_id);
   const cache_data = JSON.parse(cache_value || "{}");
 
-  console.log("queried  from cache");
+  // if no cache value or cache data doesn't match
+  if (!cache_value || !cache_data[type]) return null;
 
-  if (cache_value && cache_data[type]) {
-    return cache_data[type];
+  let result = cache_data[type]; // if no limit or limit wasn't set to true return the whole data
+
+  if (limit) {
+    const halfLength = Math.ceil((type === "timestamp_summary" ? result?.timestamp_summary : result?.insights.points).length / 2);
+    const val = halfLength < limit ? halfLength : limit;
+    result =
+      type === "timestamp_summary"
+        ? { ...result, timestamp_summary: result?.timestamp_summary.slice(0, val) }
+        : { ...result, insights: { ...result.insights, points: result.insights.points.slice(0, val) } };
   }
+
+  return result;
 };
 
 /** transform the look of key ideas */

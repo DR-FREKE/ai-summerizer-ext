@@ -23,11 +23,14 @@ const insertIframe = () => {
   console.log("YouTube video page detected!!!");
 
   const video_id = getCurrentVideoId();
-  if (!video_id) return;
+  if (!video_id) {
+    console.log("No video ID found, aborting iframe insertion.");
+    return;
+  }
 
-  console.log("Creating iframe...");
+  console.log("Creating iframe...", video_id);
 
-  let iframe_url = "https://app-frontend-iframe.vercel.app";
+  const iframe_url = "https://app-frontend-iframe.vercel.app";
 
   // Create iframe element
   iframe = document.createElement("iframe");
@@ -55,6 +58,8 @@ const insertIframe = () => {
   if (yt_sidebar && !yt_sidebar.querySelector(".extension-iframe-container")) {
     yt_sidebar.insertBefore(summerizer_div, yt_sidebar.firstChild);
     console.log("Iframe inserted for video ID:", video_id);
+  } else {
+    console.log("Failed to find YouTube sidebar or iframe already exists.");
   }
 
   /** get the user session...users most authenticate with google login before they can use the extension
@@ -68,8 +73,9 @@ const insertIframe = () => {
    */
 
   chrome.runtime.sendMessage({ type: "get_session" }, session => {
-    console.log("gotten session", session);
+    console.log("gotten sessions", session);
     if (session == null || session.accessToken == null || session == undefined) {
+      console.log("session token is: ", session.accessToken);
       // set iframe url to include unauthorized
       iframe.src = iframe_url + "/unauthorized";
 
@@ -123,30 +129,33 @@ const insertIframe = () => {
 
     window.addEventListener("message", event => {
       const { type, height } = event.data;
-      // const height_options = {
-      //   HEIGHT_OPEN: `${height}px`,
-      //   OPEN_CONTENT_BODY: `${height}px`,
-      //   CLOSE_CONTENT_BODY: `${height}px`,
-      //   HEIGHT_CLOSED: `${height}px`,
-      // };
+      const height_options = {
+        HEIGHT_OPEN: `${height}px`,
+        OPEN_CONTENT_BODY: `${height}px`,
+        CLOSE_CONTENT_BODY: `${height}px`,
+        HEIGHT_CLOSED: `${height}px`,
+        OPEN_LOGIN_BODY: `${height}px`,
+      };
 
-      // iframe.style.height = height_options[type as keyof typeof height_options]
+      console.log("this is the type and the height", type, height);
 
-      if (type == "HEIGHT_OPEN" && height) {
-        iframe.style.height = `${height}px`;
-      }
+      iframe.style.height = height_options[type as keyof typeof height_options];
 
-      if (type == "OPEN_CONTENT_BODY" && height) {
-        iframe.style.height = `${height}px`;
-      }
+      // if (type == "HEIGHT_OPEN" && height) {
+      //   iframe.style.height = `${height}px`;
+      // }
 
-      if (type === "HEIGHT_CLOSED") {
-        iframe.style.height = `auto`;
-      }
+      // if (type == "OPEN_CONTENT_BODY" && height) {
+      //   iframe.style.height = `${height}px`;
+      // }
 
-      if (type === "CLOSE_CONTENT_BODY") {
-        iframe.style.height = "auto";
-      }
+      // if (type === "HEIGHT_CLOSED") {
+      //   iframe.style.height = `auto`;
+      // }
+
+      // if (type === "CLOSE_CONTENT_BODY") {
+      //   iframe.style.height = "auto";
+      // }
     });
 
     listenersAdded = true;
@@ -165,16 +174,20 @@ const removeIframe = () => {
 
 const checkAndInject = () => {
   chrome.runtime.sendMessage({ type: "youtubeOrNot" }, res => {
+    console.log("youtubeOrNot response:", res);
+
     if (!res) {
       removeIframe();
       return;
     }
 
     const video_id = getCurrentVideoId();
+    console.log("Current video ID:", video_id, "Previous video ID:", currentVideoId);
+
     if (video_id && video_id !== currentVideoId) {
       currentVideoId = video_id;
       removeIframe();
-      insertIframe();
+      setTimeout(insertIframe, 7000);
     } else if (!video_id && iframe) {
       removeIframe();
     }

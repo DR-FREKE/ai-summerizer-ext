@@ -38,6 +38,6 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ message: "data not found" }, { status: 404, headers: corsHeaders });
   } catch (error: any) {
     console.error("error occured", error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ message: error }, { status: 500 });
   }
 };
