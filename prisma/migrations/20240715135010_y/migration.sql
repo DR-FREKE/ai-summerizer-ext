@@ -93,12 +93,25 @@ CREATE TABLE "Ratings" (
 
 -- CreateTable
 CREATE TABLE "QuestionAnswer" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "question" TEXT NOT NULL,
     "answer" TEXT NOT NULL,
     "video_id" TEXT NOT NULL,
 
     CONSTRAINT "QuestionAnswer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subscription" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "subs_start_date" TIMESTAMP(3) NOT NULL,
+    "subs_end_date" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'inactive',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

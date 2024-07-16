@@ -64,7 +64,7 @@ const decodeText = (text: string) => {
 export const getTranscript = async (video_id: string) => {
   try {
     // get the video transcript
-    const transcripts = await YoutubeTranscript.fetchTranscript(video_id);
+    const transcripts = await YoutubeTranscript.fetchTranscript(video_id, { lang: "en" });
     return transcripts.map(transcript => ({ ...transcript, text: decodeText(transcript.text) }));
   } catch (error) {
     throw new Error("couldn't fetch transcript, please confirm the video ID is valid");

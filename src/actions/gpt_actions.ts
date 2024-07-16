@@ -9,7 +9,7 @@ import { OpenAIEmbeddings, ChatOpenAI, type OpenAIClient } from "@langchain/open
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { TIMESTAMP_PROMPT, TIMESTAMP_TOOL_SCHEMA, TimestampSummaryType } from "@/lib/prompt/timestamp.prompt";
-import { INSIGHT_PROMPT, INSIGHT_TOOL_SCHEMA, KeyInsightType } from "@/lib/prompt/insight.prompt";
+import { INSIGHT_PROMPT, INSIGHT_TOOL_SCHEMA, KeyInsightType, insightOutputParser } from "@/lib/prompt/insight.prompt";
 import { SUMMARY_PROMPT, SUMMARY_TOOL_SCHEMA, SummaryType, summaryOutputParser } from "@/lib/prompt/summary.prompt";
 import { outputParser } from "@/lib/prompt";
 
@@ -97,9 +97,10 @@ export const queryGPT = async <T>(transcript: TranscriptResponse[], configs: Con
 
 export const runGTP = async (transcript: TranscriptResponse[]) => {
   if (transcript && transcript.length !== 0) {
+    console.log("this is my transcript: ", transcript);
     // configuration for timestamp, insight, and summary
     const timestamp_config = { tool: TIMESTAMP_TOOL_SCHEMA, prompt: TIMESTAMP_PROMPT, parser_type: "timestamp_summary" }; // config tools
-    const insight_config = { tool: INSIGHT_TOOL_SCHEMA, prompt: INSIGHT_PROMPT, parser_type: "insights" };
+    const insight_config = { tool: INSIGHT_TOOL_SCHEMA, prompt: INSIGHT_PROMPT, parser: insightOutputParser };
     const summary_config = { tool: SUMMARY_TOOL_SCHEMA, prompt: SUMMARY_PROMPT, parser: summaryOutputParser };
 
     const [timestamp_summary, insight, summary] = await Promise.all([

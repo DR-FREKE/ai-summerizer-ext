@@ -85,6 +85,8 @@ export const getVideoById = async (video_id: string, type: string, language?: st
     const cache_data = await getVideoFromCache(video_id, type);
     if (cache_data) return cache_data;
 
+    console.log(process.env.POSTGRES_PRISMA_URL);
+
     const video = await prisma.video.findUnique({
       where: {
         video_id,
@@ -124,7 +126,7 @@ export const getVideoById = async (video_id: string, type: string, language?: st
     };
 
     // call function to store data to cache
-    await storeCacheData(video_id, type, result);
+    // await storeCacheData(video_id, type, result);
 
     // return result to users
     return result;
