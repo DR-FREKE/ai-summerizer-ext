@@ -100,7 +100,7 @@ var insertIframe = function () {
      */
     chrome.runtime.sendMessage({ type: "get_session" }, function (session) {
         console.log("gotten sessions", session);
-        if (!session) {
+        if (!session || session.accessToken == null) {
             // set iframe url to include unauthorized
             iframe.src = iframe_url + "/unauthorized";
             // might send an event as well
@@ -113,11 +113,9 @@ var insertIframe = function () {
         window.addEventListener("message", function (event) {
             var _a = event.data, type = _a.type, payload = _a.payload;
             if (type == "GET_VIDEO_ID" && video_id == currentVideoId) {
-                console.log("THIS IS GET_VIDEO MESSAGE!!!", currentVideoId);
                 chrome.runtime.sendMessage({ type: "video_exist", payload: video_id }, function (video_info) {
-                    var _a;
                     // handle the response if needed
-                    console.log("is video available for", currentVideoId);
+                    var _a;
                     if (video_info.data && video_info != undefined) {
                         console.log("is video available", video_info.data);
                         // send response to the nextjs frontend
@@ -133,7 +131,6 @@ var insertIframe = function () {
             return __generator(this, function (_c) {
                 _a = event.data, type = _a.type, payload = _a.payload;
                 regex_match = /^(insights|timestamp_summary|comments|transcript)$/;
-                console.log("tab pressed");
                 if (regex_match.test(type)) {
                     //send response back to nextjs
                     (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "TAB_RESPONSE", payload: { url: "/transcript", video_id: video_id, type: type } }, "*");
@@ -159,20 +156,12 @@ var insertIframe = function () {
                 HEIGHT_CLOSED: "".concat(height, "px"),
                 OPEN_LOGIN_BODY: "".concat(height, "px"),
             };
-            console.log("this is the type and the height", type, height);
-            iframe.style.height = height_options[type];
-            // if (type == "HEIGHT_OPEN" && height) {
-            //   iframe.style.height = `${height}px`;
-            // }
-            // if (type == "OPEN_CONTENT_BODY" && height) {
-            //   iframe.style.height = `${height}px`;
-            // }
-            // if (type === "HEIGHT_CLOSED") {
-            //   iframe.style.height = `auto`;
-            // }
-            // if (type === "CLOSE_CONTENT_BODY") {
-            //   iframe.style.height = "auto";
-            // }
+            if (type && height) {
+                iframe.style.height = height_options[type];
+            }
+            else {
+                iframe.style.height = "auto";
+            }
         });
         listenersAdded = true;
     }
@@ -182,7 +171,6 @@ var removeIframe = function () {
     if (summerizer_div && summerizer_div.parentNode) {
         summerizer_div.parentNode.removeChild(summerizer_div);
         // iframe = null;
-        console.log("Iframe removed");
     }
 };
 var checkAndInject = function () {

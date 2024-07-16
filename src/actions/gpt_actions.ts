@@ -97,7 +97,6 @@ export const queryGPT = async <T>(transcript: TranscriptResponse[], configs: Con
 
 export const runGTP = async (transcript: TranscriptResponse[]) => {
   if (transcript && transcript.length !== 0) {
-    console.log("this is my transcript: ", transcript);
     // configuration for timestamp, insight, and summary
     const timestamp_config = { tool: TIMESTAMP_TOOL_SCHEMA, prompt: TIMESTAMP_PROMPT, parser_type: "timestamp_summary" }; // config tools
     const insight_config = { tool: INSIGHT_TOOL_SCHEMA, prompt: INSIGHT_PROMPT, parser: insightOutputParser };

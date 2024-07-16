@@ -74,7 +74,7 @@ const insertIframe = () => {
 
   chrome.runtime.sendMessage({ type: "get_session" }, session => {
     console.log("gotten sessions", session);
-    if (!session) {
+    if (!session || session.accessToken == null) {
       // set iframe url to include unauthorized
       iframe.src = iframe_url + "/unauthorized";
       // might send an event as well
@@ -88,10 +88,8 @@ const insertIframe = () => {
     window.addEventListener("message", event => {
       const { type, payload } = event.data;
       if (type == "GET_VIDEO_ID" && video_id == currentVideoId) {
-        console.log("THIS IS GET_VIDEO MESSAGE!!!", currentVideoId);
         chrome.runtime.sendMessage({ type: "video_exist", payload: video_id }, video_info => {
           // handle the response if needed
-          console.log("is video available for", currentVideoId);
 
           if (video_info.data && video_info != undefined) {
             console.log("is video available", video_info.data);
@@ -106,8 +104,6 @@ const insertIframe = () => {
     window.addEventListener("message", async event => {
       const { type, payload } = event.data;
       const regex_match = /^(insights|timestamp_summary|comments|transcript)$/;
-
-      console.log("tab pressed");
 
       if (regex_match.test(type)) {
         //send response back to nextjs
@@ -134,25 +130,11 @@ const insertIframe = () => {
         OPEN_LOGIN_BODY: `${height}px`,
       };
 
-      console.log("this is the type and the height", type, height);
-
-      iframe.style.height = height_options[type as keyof typeof height_options];
-
-      // if (type == "HEIGHT_OPEN" && height) {
-      //   iframe.style.height = `${height}px`;
-      // }
-
-      // if (type == "OPEN_CONTENT_BODY" && height) {
-      //   iframe.style.height = `${height}px`;
-      // }
-
-      // if (type === "HEIGHT_CLOSED") {
-      //   iframe.style.height = `auto`;
-      // }
-
-      // if (type === "CLOSE_CONTENT_BODY") {
-      //   iframe.style.height = "auto";
-      // }
+      if (type && height) {
+        iframe.style.height = height_options[type as keyof typeof height_options];
+      } else {
+        iframe.style.height = "auto";
+      }
     });
 
     listenersAdded = true;
@@ -164,8 +146,6 @@ const removeIframe = () => {
   if (summerizer_div && summerizer_div.parentNode) {
     summerizer_div.parentNode.removeChild(summerizer_div);
     // iframe = null;
-
-    console.log("Iframe removed");
   }
 };
 
