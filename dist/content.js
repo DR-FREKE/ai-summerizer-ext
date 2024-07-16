@@ -155,12 +155,17 @@ var insertIframe = function () {
                 CLOSE_CONTENT_BODY: "".concat(height, "px"),
                 HEIGHT_CLOSED: "".concat(height, "px"),
                 OPEN_LOGIN_BODY: "".concat(height, "px"),
+                CONTENT_LOADING: "".concat(height, "px"),
             };
-            if (type && height) {
+            if (!Object.keys(height_options).includes(type)) {
+                return;
+            }
+            if (Object.keys(height_options).includes(type) && height) {
                 iframe.style.height = height_options[type];
             }
             else {
                 iframe.style.height = "auto";
+                iframe.style.backgroundColor = "blue";
             }
         });
         listenersAdded = true;

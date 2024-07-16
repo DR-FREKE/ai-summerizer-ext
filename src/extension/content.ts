@@ -128,12 +128,18 @@ const insertIframe = () => {
         CLOSE_CONTENT_BODY: `${height}px`,
         HEIGHT_CLOSED: `${height}px`,
         OPEN_LOGIN_BODY: `${height}px`,
+        CONTENT_LOADING: `${height}px`,
       };
 
-      if (type && height) {
+      if (!Object.keys(height_options).includes(type)) {
+        return;
+      }
+
+      if (Object.keys(height_options).includes(type) && height) {
         iframe.style.height = height_options[type as keyof typeof height_options];
       } else {
         iframe.style.height = "auto";
+        iframe.style.backgroundColor = "blue";
       }
     });
 
