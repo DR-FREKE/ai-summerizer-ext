@@ -8,7 +8,7 @@ export const OPTIONS = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest, context: any) => {
-  const SHARE_URL = "http://localhost:3000";
+  const SHARE_URL = "https://summerizer-ext.vercel.app";
   const {
     params: { video_id },
   } = context;
