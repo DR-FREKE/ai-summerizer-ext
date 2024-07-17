@@ -126,7 +126,7 @@ export const getVideoById = async (video_id: string, type: string, language?: st
     };
 
     // call function to store data to cache
-    // await storeCacheData(video_id, type, result);
+    await storeCacheData(video_id, type, result);
 
     // return result to users
     return result;
