@@ -4,7 +4,7 @@ To test or run the Chrome extension, follow these steps:
 
 1. Go to the URL `chrome://extensions`.
 2. Enable Developer mode by toggling the switch in the top right corner.
-3. Click on "Load unpacked" which will open your file explorer. Select the extension folder, specifically the `/dist` folder.
+3. Click on "Load unpacked" which will open your file explorer. Navigate to the extension and select the `/dist` folder.
 4. After successfully unpacking the `dist` folder of the extension, start the extension by navigating to the extension folder in your terminal and running:
 
    ```bash
