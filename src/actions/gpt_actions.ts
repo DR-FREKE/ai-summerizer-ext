@@ -77,8 +77,9 @@ export const queryGPT = async <T>(transcript: TranscriptResponse[], configs: Con
   /** run chat gpt query by first initializing gpt model */
   const model = new ChatOpenAI({
     modelName: "gpt-4-1106-preview",
-    temperature: 0.9,
+    temperature: 0,
     openAIApiKey,
+    verbose: true,
   });
 
   // const config = type_template[type as keyof typeof type_template];
