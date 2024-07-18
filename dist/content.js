@@ -115,11 +115,14 @@ var insertIframe = function () {
             if (type == "GET_VIDEO_ID" && video_id == currentVideoId) {
                 chrome.runtime.sendMessage({ type: "video_exist", payload: video_id }, function (video_info) {
                     // handle the response if needed
-                    var _a;
+                    var _a, _b;
                     if (video_info.data && video_info != undefined) {
                         console.log("is video available", video_info.data);
                         // send response to the nextjs frontend
                         (_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.postMessage({ type: "LOAD_RESPONSE", payload: { url: "/transcript", video_id: currentVideoId } }, "*");
+                    }
+                    else {
+                        (_b = iframe.contentWindow) === null || _b === void 0 ? void 0 : _b.postMessage({ type: "LOAD_RESPONSE", payload: { video_id_exist: false } }, "*");
                     }
                 });
             }

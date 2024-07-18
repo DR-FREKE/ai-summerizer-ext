@@ -95,6 +95,8 @@ const insertIframe = () => {
             console.log("is video available", video_info.data);
             // send response to the nextjs frontend
             iframe.contentWindow?.postMessage({ type: "LOAD_RESPONSE", payload: { url: "/transcript", video_id: currentVideoId } }, "*");
+          } else {
+            iframe.contentWindow?.postMessage({ type: "LOAD_RESPONSE", payload: { video_id_exist: false } }, "*");
           }
         });
       }
