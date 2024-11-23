@@ -50,22 +50,6 @@
      - Make the extension accessible to a global audience.
      - Use it as a language-learning tool by comparing translations.
 
----
-
-## 📖 **How to Use the Extension**
-
-1. **Install the Extension**:
-   - Download and install the extension from the Chrome Web Store.
-
-2. **Navigate to a YouTube Video**:
-   - Visit any YouTube video page and ensure the extension is active.
-
-3. **Access Features**:
-   - Use the extension panel to view timestamp summaries, key insights, recent comments, and the overall summary.
-
-4. **Upcoming Features** (Once Released):
-   - Engage in real-time chat by typing your queries in the chat interface.
-   - Translate AI responses by selecting your preferred language in the settings.
 
 ---
 
@@ -102,24 +86,3 @@ With this extension, you no longer need to spend hours sifting through lengthy v
 ---
 
 **Start transforming your YouTube experience today!**
-
-
-
-
-
-# Chrome Extension Setup Guide
-
-To test or run the Chrome extension, follow these steps:
-
-1. Go to the URL `chrome://extensions`.
-2. Enable Developer mode by toggling the switch in the top right corner.
-3. Click on "Load unpacked" which will open your file explorer. Navigate to the extension and select the `/dist` folder.
-4. After successfully unpacking the `dist` folder of the extension, start the extension by navigating to the extension folder in your terminal and running:
-
-   ```bash
-   npm run watch:all
-   ```
-
-Once that's done, go back to chrome://extensions and refresh the extension.
-
-With this done, you can go to a YouTube video page, and the extension will be loaded.
